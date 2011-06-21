@@ -64,24 +64,5 @@ function assignment_schema() {
 		'primary key' => array('aid'),
 	);
 	
-	$schema['assignment_terms'] = array(
-		'description' => 'Table for assignment terms.',
-		'fields' => array(
-			'aid' => array(
-				'description'	=> 'The primary key for the assignments entity',
-				'type'			=> 'int',
-				'unsigned'		=> TRUE,
-				'not null'		=> TRUE,
-			),
-			'tid' => array(
-				'description' 	=> 'The term assigned to this assignment',
-				'type' 			=> 'int',
-				'unsigned' 		=> TRUE,
-				'not null'		=> TRUE,
-			)
-		),
-		'primary key' => array('aid', 'tid')
-	);
-	
 	return $schema;
 }

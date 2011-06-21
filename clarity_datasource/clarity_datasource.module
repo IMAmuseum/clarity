@@ -11,8 +11,6 @@
  * charts.
  */
 
-
-
 /*
  * Implementation of hook_help
  */
@@ -60,65 +58,8 @@ function clarity_datasource_config_form($form, &$form_state) {
 
 function clarity_datasource_form_alter(&$form, &$form_state, $form_id) {
 
-  switch($form_id) {
-
-    case 'assignment_form_create':
-
-      // Find terms from the vocabulary assigned to the stat
-      // TODO: This is assuming that stats are assigned vocabularies
-      $node = node_load($form['sid']['#value']);
-      $items = field_get_items('node', $node, 'field_categories');
-      $result = db_query("SELECT tid, name
-                          FROM {taxonomy_term_data}
-                          WHERE vid = :vid", array(':vid' => $items[0]['value']));
-
-      $term_options = array();
-      foreach($result as $row) {
-        $term_options[$row->tid] = $row->name;
-      }
-
-      if(!empty($term_options)) {
-        $vocab = taxonomy_vocabulary_load($items[0]['value']);
-        $form['terms'] = array(
-          '#type'         => 'select',
-          '#title'        => t($vocab->name),
-          '#options'      => $term_options,
-          '#multiple'     => TRUE,
-          '#required'      => TRUE
-        );
-      }
-
-      //$form['#submit'][] = 'clarity_datasource_assignment_form_create_submit';
-
-      break;
-
-    case 'assignment_form_edit':
-
-      $assignment = assignment_load($form['aid']['#value']);
-      $node = node_load($form['sid']['#value']);
-      $items = field_get_items('node', $node, 'field_categories');
-      $result = db_query("SELECT tid, name
-                          FROM {taxonomy_term_data}
-                          WHERE vid = :vid", array(':vid' => $items[0]['value']));
-      $term_options = array();
-      foreach($result as $row) {
-          $term_options[$row->tid] = $row->name;
-      }
-
-      if(!empty($term_options)) {
-          $vocab = taxonomy_vocabulary_load($items[0]['value']);
-          $form['terms'] = array(
-              '#type'             => 'select',
-              '#title'            => t($vocab->name),
-              '#options'          => $term_options,
-              '#default_value'    => $assignment->terms,
-              '#multiple'         => TRUE,
-              '#required'          => TRUE
-          );
-      }
-
-      break;
-
+  if (substr($form_id, 0, 15) == 'assignment_form') {
+    TaxonomyCategory::assignmentFormFields($form, $form_state, $form_id);
   }
 
 }
@@ -185,83 +126,5 @@ function clarity_datasource_entity_load($entities, $type) {
 }
 
 
-/*****************************************************************************
- * Datasource API hooks                                                      *
- *****************************************************************************/
-
-
-/**
- * apihook_submit_data_form_fields
- * Define the fields that make up the data submission form
- * @param unknown_type $stat
- */
-function clarity_datasource_submit_data_form_fields($stat) {
-
-  $fields['single-value'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Value'),
-    '#description' => $stat->field_unit['und'][0]['value'],
-    '#required' => true
-  );
-
-  $fields['annotation'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Annotation'),
-    '#description' => t('An optional annotation for this entry')
-  );
-
-  return $fields;
-
-}
-
-
-/**
- * apihook_submit_data_form_validate
- * This hook validates the data provided in the form
- * @param unknown_type $form
- * @param unknown_type $form_state
- */
-function clarity_datasource_submit_data_form_validate($form, $form_state) {
-
-  if (!is_numeric($form_state['values']['single-value'])) {
-    form_set_error('single-value', t('Please enter a numeric value'));
-  }
-
-}
-
-
-/**
- * apihook_submit_data_form_submit
- * This hook is called when data is ready to be entered in the database
- * @param unknown_type $form
- * @param unknown_type $form_state
- */
-function clarity_datasource_submit_data_form_submit($form, $form_state) {
-
-  global $user;
-
-  try {
-
-    $result = db_insert('clarity_value_single_float')->fields(array(
-      'stat_nid'      => $form_state['values']['assignment']->sid,
-      'uid'           => $user->uid,
-      'timestamp'     => $form_state['values']['assignment']->expire_date,
-      'value'         => $form_state['values']['single-value'],
-      'annotation'    => $form_state['values']['annotation'],
-      'modified_time' => time()
-    ))->execute();
-
-  } catch (PDOException $e) {
-
-    watchdog_exception('data_submission', $e);
-    if (($e->errorInfo[0] == 23000) && $e->errorInfo[1] == 1062) {
-      drupal_set_message(t('An entry for this assignment already exists'), 'warning');
-    } else {
-      drupal_set_message(t('The system was unable to record this value'), 'warning');
-    }
-
-  }
-
-}
 
 

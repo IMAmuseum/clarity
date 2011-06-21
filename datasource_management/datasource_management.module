@@ -97,13 +97,16 @@ function datasource_management_submit_data_form($form, &$form_state, $assignment
     '#value' => $ds_info
   );
 
-  $form['data_fields'] = module_invoke($ds_info->module, 'submit_data_form_fields', $stat);
+  $ds = new $ds_info->class;
+  $form['data_fields'] = $ds->getDataFormFields($stat);
   $form['data_fields']['#type'] = 'fieldset';
 
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => 'Submit'
   );
+
+  unset($ds);
 
   return $form;
 
@@ -117,7 +120,9 @@ function datasource_management_submit_data_form($form, &$form_state, $assignment
  */
 function datasource_management_submit_data_form_validate($form, &$form_state) {
 
-  module_invoke($form['datasource']['#value']->module, 'submit_data_form_validate', $form, $form_state);
+  $ds = new $form['datasource']['#value']->class;
+  $ds->validateDataForm($form, $form_state);
+  unset($ds);
 
 }
 
@@ -130,7 +135,9 @@ function datasource_management_submit_data_form_validate($form, &$form_state) {
 function datasource_management_submit_data_form_submit($form, &$form_state) {
 
   // Pass form values to the appropriate datasource
-  module_invoke($form['datasource']['#value']->module, 'submit_data_form_submit', $form, $form_state);
+  $ds = new $form['datasource']['#value']->class;
+  $ds->submitDataForm($form, $form_state);
+  unset($ds);
 
   // Tell the assignment module that this assignment is complete
   module_invoke('assignment', 'data_submitted', $form_state['values']['assignment']->aid);
@@ -138,7 +145,7 @@ function datasource_management_submit_data_form_submit($form, &$form_state) {
 }
 
 
-function datasource_management_create_datasource($module, $name, $label, $data = null) {
+function datasource_management_create_datasource($module, $class, $label, $data = null) {
 
   if (!module_exists($module)) {
     watchdog('datasource_management',
@@ -146,17 +153,17 @@ function datasource_management_create_datasource($module, $name, $label, $data =
     return;
   }
 
-  if (!is_string($name)) {
+  if (!is_string($class)) {
     watchdog('datasource_management',
-             'name parameter must be a string', null, WATCHDOG_ERROR);
+             'class parameter must be a string', null, WATCHDOG_ERROR);
     return;
   }
 
-  $result = db_query("SELECT * FROM {dashboard_datasource} WHERE module = '$module' and name = '$name'");
+  $result = db_query("SELECT * FROM {dashboard_datasource} WHERE module = '$module' and class = '$class'");
   $results = $result->fetchAll();
   if (!empty($results)) {
     watchdog('datasource_management',
-             "datasource $name already exists for $module", null, WATCHDOG_WARNING);
+             "datasource $class already exists for $module", null, WATCHDOG_WARNING);
     return;
   }
 
@@ -169,7 +176,7 @@ function datasource_management_create_datasource($module, $name, $label, $data =
   $datasource = array(
     'type' => 'dashboard_datasource',
     'module' => $module,
-    'name' => $name,
+    'class' => $class,
     'label' => $label
   );
 

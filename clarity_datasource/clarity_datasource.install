@@ -3,7 +3,7 @@
 function clarity_datasource_install() {
 
   datasource_management_create_datasource('clarity_datasource', 
-                                          'clarity_value_single_float',
+                                          'ClaritySingleValueDatasource',
                                           'Manual Single Value');
 
 }
