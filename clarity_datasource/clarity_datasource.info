@@ -1,0 +1,8 @@
+name = Clarity Datasource
+description = The core data source module for Clarity
+core = 7.x
+package = "Clarity"
+dependencies[] = datasource_management
+
+
+
