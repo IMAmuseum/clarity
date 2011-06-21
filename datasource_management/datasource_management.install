@@ -21,7 +21,7 @@ function datasource_management_field_schema($field) {
 function datasource_management_schema() {
 
   $schema['dashboard_datasource'] = array(
-    'description' => 'Stores the dashboard datasource index',
+    'description' => 'Stores the datasource index',
     'fields' => array(
       'dsid' => array(
         'type' => 'serial',

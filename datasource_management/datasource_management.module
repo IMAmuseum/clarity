@@ -69,7 +69,7 @@ function datasource_management_page() {
 
 /**
  * Render the data submission form for the given assignment. Invokes
- * a form render via the datasource for the associated statistuc.
+ * a form render via the datasource for the associated statistic.
  * @param unknown_type $form
  * @param unknown_type $form_state
  * @param unknown_type $assignment_id
