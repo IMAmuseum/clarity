@@ -1,0 +1,6 @@
+name = Datasource Management
+description = Manages datasources for the dashboard package
+core = 7.x
+package = "Dashboard"
+dependencies[] = 'assignment'
+

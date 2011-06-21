@@ -1,0 +1,87 @@
+<?php
+
+/**
+ * @file
+ * Assignment Schema
+ */
+ 
+function assignment_schema() {
+	$schema['assignment'] = array(
+		'description' => 'Table for assignment entity',
+		'fields' => array(
+			'aid' => array(
+				'description'	=> 'The primary key for the assignments entity',
+				'type'			=> 'serial',
+				'unsigned'		=> TRUE,
+				'not null'		=> TRUE,
+			),
+			'uid' => array(
+				'description' 	=> 'The user assigned to this assignment',
+				'type' 			=> 'int',
+				'unsigned' 		=> TRUE,
+				'not null'		=> TRUE,
+			),
+			'sid' => array(
+				'description'	=> 'The statistic assigned to this assignment',
+				'type'			=> 'int',
+				'unsigned'		=> TRUE,
+				'not null'		=> TRUE,
+			),
+			'created' => array(
+				'description'	=> 'Date the statistic was created',
+				'type'			=> 'int',
+				'unsigned'		=> TRUE,
+				'not null'		=> TRUE
+			),
+			'expire_date' => array(
+				'description'	=> 'Date when assignment expires',
+				'type'			=> 'int',
+				'unsigned'		=> TRUE,			
+				'not null'		=> TRUE
+			),
+			'modified_date' => array(
+				'description'	=> 'Date when assignment was modified',
+				'type'			=> 'int',
+				'unsigned'		=> TRUE,			
+				'not null'		=> FALSE
+			),
+			'complete' => array(
+				'description'	=> 'Assignment completed',
+				'type'			=> 'int',
+				'not null'		=> TRUE,
+				'size'			=> 'tiny',
+				'default'		=> 0
+			),
+			'data' => array(
+        		'type' => 'text',
+        		'not null' => FALSE,
+        		'size' => 'big',
+       			'serialize' => TRUE,
+		        'description' => 'A serialized array of additional data related to the assignment',
+        		'merge' => TRUE,        
+      		)   
+		),
+		'primary key' => array('aid'),
+	);
+	
+	$schema['assignment_terms'] = array(
+		'description' => 'Table for assignment terms.',
+		'fields' => array(
+			'aid' => array(
+				'description'	=> 'The primary key for the assignments entity',
+				'type'			=> 'int',
+				'unsigned'		=> TRUE,
+				'not null'		=> TRUE,
+			),
+			'tid' => array(
+				'description' 	=> 'The term assigned to this assignment',
+				'type' 			=> 'int',
+				'unsigned' 		=> TRUE,
+				'not null'		=> TRUE,
+			)
+		),
+		'primary key' => array('aid', 'tid')
+	);
+	
+	return $schema;
+}

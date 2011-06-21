@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/45/trunk/modules/statistic_management
+END
+statistic_management.module
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/!svn/ver/45/trunk/modules/statistic_management/statistic_management.module
+END
+statistic_management.features.inc
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/!svn/ver/24/trunk/modules/statistic_management/statistic_management.features.inc
+END
+statistic_management.features.field.inc
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/!svn/ver/34/trunk/modules/statistic_management/statistic_management.features.field.inc
+END
+statistic_management.info
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/!svn/ver/24/trunk/modules/statistic_management/statistic_management.info
+END

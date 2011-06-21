@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/53/trunk/modules/datasource_management
+END
+datasource_management.info
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/!svn/ver/41/trunk/modules/datasource_management/datasource_management.info
+END
+datasource_management.module
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/!svn/ver/55/trunk/modules/datasource_management/datasource_management.module
+END
+datasource_management.install
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/!svn/ver/38/trunk/modules/datasource_management/datasource_management.install
+END

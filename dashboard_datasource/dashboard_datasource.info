@@ -1,0 +1,9 @@
+name = Dashboard Datasource
+description = The core data source module for Clarity
+core = 7.x
+package = "Clarity"
+configure = admin/config/datasources/dashboard
+dependencies[] = datasource_management
+
+
+

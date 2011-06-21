@@ -1,0 +1,267 @@
+<?php
+/**
+ * @file
+ * This module implements the core data source for the Dashboard package.
+ *
+ * A data source presents an interface through which stat data can be submitted
+ * by users for stats, and edited, deleted, or plotted on charts.
+ *
+ * Custom versions of this module can be implemented which poll external datasources.
+ * By implementing the same hook interface, these custom modules can supply data to
+ * charts.
+ */
+
+
+
+/*
+ * Implementation of hook_help
+ */
+function dashboard_datasource_help($path, $arg) {
+
+  switch($path) {
+    case 'admin/help#dashboard_datasource':
+      return '<p>' . t("Implements the core data source for the Dashboard package.") . '</p>';
+      break;
+  }
+
+}
+
+/*
+ * Implementation of hook_menu
+ */
+function dashboard_datasource_menu() {
+
+  $items = array();
+
+  $items['admin/config/datasources/dashboard'] = array(
+    'title' => t('Dashboard Datasource'),
+    'description' => t('The core datasource for the dashboard'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('dashboard_datasource_config_form'),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+
+}
+
+
+/**
+ * Configuration form hook
+ */
+function dashboard_datasource_config_form($form, &$form_state) {
+
+}
+
+/*****************************************************************************
+ * Datasource support for categories                                         *
+ *****************************************************************************/
+
+function dashboard_datasource_form_alter(&$form, &$form_state, $form_id) {
+
+  switch($form_id) {
+
+    case 'assignment_form_create':
+
+      // Find terms from the vocabulary assigned to the stat
+      // TODO: This is assuming that stats are assigned vocabularies
+      $node = node_load($form['sid']['#value']);
+      $items = field_get_items('node', $node, 'field_categories');
+      $result = db_query("SELECT tid, name
+                          FROM {taxonomy_term_data}
+                          WHERE vid = :vid", array(':vid' => $items[0]['value']));
+
+      $term_options = array();
+      foreach($result as $row) {
+        $term_options[$row->tid] = $row->name;
+      }
+
+      if(!empty($term_options)) {
+        $vocab = taxonomy_vocabulary_load($items[0]['value']);
+        $form['terms'] = array(
+          '#type'         => 'select',
+          '#title'        => t($vocab->name),
+          '#options'      => $term_options,
+          '#multiple'     => TRUE,
+          '#required'      => TRUE
+        );
+      }
+
+      //$form['#submit'][] = 'dashboard_datasource_assignment_form_create_submit';
+
+      break;
+
+    case 'assignment_form_edit':
+
+      $assignment = assignment_load($form['aid']['#value']);
+      $node = node_load($form['sid']['#value']);
+      $items = field_get_items('node', $node, 'field_categories');
+      $result = db_query("SELECT tid, name
+                          FROM {taxonomy_term_data}
+                          WHERE vid = :vid", array(':vid' => $items[0]['value']));
+      $term_options = array();
+      foreach($result as $row) {
+          $term_options[$row->tid] = $row->name;
+      }
+
+      if(!empty($term_options)) {
+          $vocab = taxonomy_vocabulary_load($items[0]['value']);
+          $form['terms'] = array(
+              '#type'             => 'select',
+              '#title'            => t($vocab->name),
+              '#options'          => $term_options,
+              '#default_value'    => $assignment->terms,
+              '#multiple'         => TRUE,
+              '#required'          => TRUE
+          );
+      }
+
+      break;
+
+  }
+
+}
+
+function dashboard_datasource_entity_presave($entity, $type) {
+
+  if ($type != 'assignment') return;
+
+  // remove all previously selected terms
+  $result = db_query("DELETE FROM {assignment_terms}
+                      WHERE aid = :aid", array(':aid' => $entity->aid));
+
+}
+
+function dashboard_datasource_assignment_update($assignment) {
+
+  if(isset($assignment->terms)) {
+      foreach($assignment->terms as $term) {
+          $assignment_terms = new stdClass();
+          $assignment_terms->aid = $assignment->aid;
+          $assignment_terms->tid = $term;
+          drupal_write_record('assignment_terms', $assignment_terms);
+      }
+  }
+
+}
+
+
+/**
+ * Add category information when an assignment is created
+ */
+function dashboard_datasource_assignment_insert($assignment) {
+
+  if(isset($assignment->terms)) {
+    foreach($assignment->terms as $term) {
+      $assignment_terms = new stdClass();
+      $assignment_terms->aid = $assignment->aid;
+      $assignment_terms->tid = $term;
+      drupal_write_record('assignment_terms', $assignment_terms);
+    }
+  }
+
+}
+
+
+/**
+ * Load category terms into assignments
+ */
+function dashboard_datasource_entity_load($entities, $type) {
+
+  if ($type != 'assignment') return;
+
+  foreach ($entities as $assignment) {
+    $result = db_query("SELECT tid
+                        FROM {assignment_terms}
+                        WHERE aid = :aid", array(':aid' => $assignment->aid));
+    $terms = array();
+    foreach($result as $row) {
+        array_push($terms, $row->tid);
+    }
+    $assignment->terms = $terms;
+  }
+
+}
+
+
+/*****************************************************************************
+ * Dashboard Datasource API hooks                                            *
+ *****************************************************************************/
+
+
+/**
+ * apihook_submit_data_form_fields
+ * Define the fields that make up the data submission form
+ * @param unknown_type $stat
+ */
+function dashboard_datasource_submit_data_form_fields($stat) {
+
+  $fields['single-value'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Value'),
+    '#description' => $stat->field_unit['und'][0]['value'],
+    '#required' => true
+  );
+
+  $fields['annotation'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Annotation'),
+    '#description' => t('An optional annotation for this entry')
+  );
+
+  return $fields;
+
+}
+
+
+/**
+ * apihook_submit_data_form_validate
+ * This hook validates the data provided in the form
+ * @param unknown_type $form
+ * @param unknown_type $form_state
+ */
+function dashboard_datasource_submit_data_form_validate($form, $form_state) {
+
+  if (!is_numeric($form_state['values']['single-value'])) {
+    form_set_error('single-value', t('Please enter a numeric value'));
+  }
+
+}
+
+
+/**
+ * apihook_submit_data_form_submit
+ * This hook is called when data is ready to be entered in the database
+ * @param unknown_type $form
+ * @param unknown_type $form_state
+ */
+function dashboard_datasource_submit_data_form_submit($form, $form_state) {
+
+  global $user;
+
+  try {
+
+    $result = db_insert('dashboard_value_single_float')->fields(array(
+      'stat_nid'      => $form_state['values']['assignment']->sid,
+      'uid'           => $user->uid,
+      'timestamp'     => $form_state['values']['assignment']->expire_date,
+      'value'         => $form_state['values']['single-value'],
+      'annotation'    => $form_state['values']['annotation'],
+      'modified_time' => time()
+    ))->execute();
+
+  } catch (PDOException $e) {
+
+    watchdog_exception('data_submission', $e);
+    if (($e->errorInfo[0] == 23000) && $e->errorInfo[1] == 1062) {
+      drupal_set_message(t('An entry for this assignment already exists'), 'warning');
+    } else {
+      drupal_set_message(t('The system was unable to record this value'), 'warning');
+    }
+
+  }
+
+}
+
+

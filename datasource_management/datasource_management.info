@@ -1,0 +1,6 @@
+name = Datasource Management
+description = Manages datasources for Clarity
+core = 7.x
+package = "Clarity"
+dependencies[] = 'assignment'
+

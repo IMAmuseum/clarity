@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Statistic Management UI feature.
+ */
+
+include_once('statistic_management_ui.features.inc');

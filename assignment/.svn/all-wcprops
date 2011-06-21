@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 41
+/svn/!svn/ver/51/trunk/modules/assignment
+END
+assignment.info
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/32/trunk/modules/assignment/assignment.info
+END
+assignment.admin.inc
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/!svn/ver/37/trunk/modules/assignment/assignment.admin.inc
+END
+assignment.module
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/!svn/ver/54/trunk/modules/assignment/assignment.module
+END
+assignment.views.inc
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/svn/!svn/ver/37/trunk/modules/assignment/assignment.views.inc
+END
+assignment.install
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/!svn/ver/40/trunk/modules/assignment/assignment.install
+END

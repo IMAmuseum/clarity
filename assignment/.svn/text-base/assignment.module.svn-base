@@ -1,0 +1,524 @@
+<?php
+
+	/**
+	 * @file
+	 * Assignment entity module
+	 */
+
+	/*
+	 * Implements hook_entity_info().
+	 */
+	function assignment_entity_info() {
+	 	$assignment_info['assignment'] = array(
+	 		'label' 			=> t('Assignment'),
+	 		'base table'		=> 'assignment',
+	 		'uri callback'		=> 'assignment_uri',
+	 		'fieldable'			=> TRUE,
+	 		'entity keys'		=> array('id' => 'aid'),
+	 		'static cache'		=> TRUE,
+	 		'bundles'			=> array(
+	 			'assignment' => array(
+	 				'label' => t('Assignment'),
+	 				'admin' => array(
+	 					'path' => 'admin/structure/assignment',
+	 					'access arguments' => array('administer example entity')
+	 				)
+	 			)
+	 		)
+	 	);
+	 	return $assignment_info;
+	}
+
+	/**
+	 *  Implements hook_trigger_info()
+	 */
+	function assignment_trigger_info() {
+		return array(
+			'assignment' => array(
+				'assignment_create' => array(
+					'label' => t('After creating a new assignment')
+				),
+				'assignment_complete' => array(
+					'label' => t('After completing an assignment')
+				),
+				'assignment_notification' => array(
+					'label'	=> t('After running a daily cron')
+				)
+			)
+		);
+	}
+
+	/**
+	 *  Implements hook_views_api
+	 */
+	function assignment_views_api() {
+		return array(
+			'api' 	=> 3.0,
+			'path'	=> drupal_get_path('module', 'assignment'));
+	}
+
+	/**
+	 *  Implements hook_cron()
+	 */
+	function assignment_cron() {
+		$cron_last = variable_get('cron_last', FALSE);
+
+		if(date('mdY') <> date('mdY', $cron_last)) {
+			// implement functionality that is ran daily
+		}
+
+	}
+
+	/**
+	 * Implements hook_permission().
+	 */
+	function assignment_permission() {
+	 	return array(
+	 		'administer assignments' => array(
+	 			'title' 			=> t('Administer Assignments'),
+	 			'restrict access' 	=> TRUE,
+	 		),
+	 		'view assignments' => array(
+	 			'title'				=> t('View Assignments'),
+	 		)
+	 	);
+	}
+
+	/**
+	 * Implements hook_menu().
+	 */
+	function assignment_menu() {
+
+
+		// create a new assignment
+		$items['node/%/assignments/create'] = array(
+			'title'				=> 'Create Assignment',
+			'page callback'		=> 'drupal_get_form',
+			'page arguments'	=> array('assignment_form_create', 1),
+			'access arguments'	=> array('administer assignments'),
+			'type'				=> MENU_NORMAL_ITEM,
+		);
+
+		// edit an assignment
+		$items['node/%/assignments/%assignment/edit'] = array(
+			'title'				=> 'Edit Assignment',
+			'page callback'		=> 'drupal_get_form',
+			'page arguments'	=> array('assignment_form_edit', 3),
+			'access arguments'	=> array('administer assignments'),
+			'type'				=> MENU_NORMAL_ITEM,
+		);
+
+		// link to record data for a statistic
+		$items['assignment/%assignment/record'] = array(
+			'title'				=> 'Record Data',
+			'page callback'		=> 'drupal_get_form',
+			'page arguments'	=> array('assignment_form_record_data'),
+			'access arguments'	=> array('administer assignments'),
+			'type'				=> MENU_LOCAL_TASK,
+		);
+
+		$items['assignments/assignee/autocomplete'] = array(
+			'page callback'		=> 'assignment_assignee_autocomplete',
+			'access callback'	=> TRUE,
+			'type'				=> MENU_CALLBACK,
+		);
+
+		$items['admin/config/system/assignment'] = array(
+        	'title' 			=> 'Assignment settings',
+        	'description' 		=> 'Configure the assignment module',
+        	'page callback'	 	=> 'drupal_get_form',
+			'page arguments'	=> array('assignment_admin'),
+        	'access arguments' 	=> array('access administration pages'),
+        	'type' 				=> MENU_NORMAL_ITEM,
+			'file'				=> 'assignment.admin.inc'
+    	);
+
+	 	return $items;
+	}
+
+	/**
+	 * Implements hook_load().
+	 */
+	function assignment_load($aid, $reset = FALSE) {
+	 	$aids = (isset($aid) ? array($aid) : array());
+	 	$assignment = assignment_load_multiple($aids, array(), $reset);
+	 	assignment_load_terms($assignment);
+		return $assignment ? reset($assignment) : FALSE;
+	}
+
+	/**
+	 * Loads multiple assignments.
+	 */
+	function assignment_load_multiple($aids = array(), $conditions = array(), $reset = FALSE) {
+		$entity = entity_load('assignment', $aids, $conditions, $reset);
+		return $entity;
+	}
+
+	/**
+	 * Loads assignment terms.
+	 */
+	function assignment_load_terms(&$assignments = array()) {
+		foreach($assignments as $assignment) {
+			$result = db_query("SELECT tid
+								FROM {assignment_terms}
+								WHERE aid = :aid", array(':aid' => $assignment->aid));
+			$terms = array();
+			foreach($result as $row) {
+				array_push($terms, $row->tid);
+			}
+			$assignment->terms = $terms;
+		}
+	}
+
+	/**
+	 * Implements hook_field_extra_fields()
+	 */
+	function assignment_field_extra_fields() {
+		$return = array();
+		$return['assignment']['assignment'] = array(
+			'form' => array(
+				'uid' => array(
+					'label' 	=> t('User'),
+					'weight'	=> 0,
+				),
+				'sid' => array(
+					'label'		=> t('Statistic'),
+					'weight'	=> 1,
+				),
+				'expire_date' => array(
+					'label'		=> t('Expiration Date'),
+					'weight'	=> 2,
+				),
+				'modified_date' => array(
+					'label'		=> t('Modified Date'),
+					'weight'	=> 3,
+				),
+				'complete' => array(
+					'label'		=> t('Completed'),
+					'weight'	=> 4,
+				),
+			),
+		);
+
+		return $return;
+	}
+
+	/**
+	 * Create new assignment.
+	 */
+	function assignment_form_create($form, &$form_state, $sid) {
+
+		$default = (object) array(
+			'uid'			=> '',
+			'sid'			=> $sid,
+			'expire_date'	=> date('m/d/Y')
+		);
+
+		$form['uid'] = array(
+			'#type'					=> 'textfield',
+			'#title'				=> t('Assignee(s)'),
+			'#description'			=> t('Comma seperated list of users and roles to assign to.'),
+			'#autocomplete_path' 	=> 'assignments/assignee/autocomplete'
+		);
+
+		$form['expire_date'] = array(
+			'#type'				=> 'textfield',
+			'#title'			=> 'Experation Date',
+			'#description'			=> t('Date assignment will expire.'),
+			'#default_value'	=> $default->expire_date,
+			'#required'			=> TRUE
+		);
+
+		$node = node_load($sid);
+		$items = field_get_items('node', $node, 'field_categories');
+		$result = db_query("SELECT tid, name
+							FROM {taxonomy_term_data}
+							WHERE vid = :vid", array(':vid' => $items[0]['value']));
+		$term_options = array();
+		foreach($result as $row) {
+			$term_options[$row->tid] = $row->name;
+		}
+
+		if(!empty($term_options)) {
+			$vocab = taxonomy_vocabulary_load($items[0]['value']);
+			$form['terms'] = array(
+				'#type'			=> 'select',
+				'#title'		=> t($vocab->name),
+				'#options'		=> $term_options,
+				'#multiple'		=> TRUE,
+				'#requied'		=> TRUE
+			);
+		}
+
+		$form['sid'] = array(
+			'#type'		=> 'value',
+			'#value'	=> $default->sid
+		);
+
+		field_attach_form('assignment', $default, $form, $form_state);
+
+		$form['actions'] = array('#type' => 'actions');
+		$form['actions']['submit'] = array(
+			'#type'		=> 'submit',
+			'#value'	=> t('Create Assignment'),
+			'#weight'	=> 4
+		);
+
+		$form['#after_build'] = array('assignment_form_js');
+
+		return $form;
+	}
+
+	/**
+	 * Add javascript library to include datepicker
+	 */
+	function assignment_form_js($form_element, &$form_state) {
+		drupal_add_library('system', 'ui.datepicker');
+		drupal_add_js("jQuery(function() { jQuery('#edit-expire-date').datepicker({dateFormat: 'mm/dd/yy', minDate: (new Date)});   });", "inline");
+		return $form_element;
+	}
+
+	/**
+	 * Submit create form
+	 */
+	function assignment_form_create_submit($form, &$form_state) {
+		$assignment = (object) $form_state['values'];
+		field_attach_submit('assignment', $assignment, $form, $form_state);
+		field_attach_presave('assignment', $assignment);
+
+		// set creation date
+		$assignment->created = mktime();
+
+		// retrieve unix timestamp
+		$assignment->expire_date = strtotime($assignment->expire_date);
+
+		// split up multiple assignees
+		$assignees = explode(',', $assignment->uid);
+		$users = array();
+
+		// iterate through each assignee to verify its existance as a user
+		foreach($assignees as $assignee) {
+			$result = db_query("SELECT uid
+								FROM {users}
+								WHERE LOWER(name) = LOWER(:str)", array(':str' => trim($assignee)))->fetchField();
+			if(!empty($result)) {
+				array_push($users, $result);
+			}
+		}
+
+		// iterate through each assignee to verify its existance as a role
+		foreach($assignees as $assignee) {
+			$results = db_query("SELECT uid
+								FROM {role} AS r INNER JOIN {users_roles} AS ur ON ur.rid = r.rid
+								WHERE LOWER(name) = LOWER(:str)", array(':str' => trim($assignee)));
+			foreach($results as $result) {
+				array_push($users, $result->uid);
+			}
+		}
+
+		// get rid of duplicate users (case: user was specified and also exists within a particular role)
+		$uids = array_unique($users);
+		// save each assignment
+		foreach($uids as $uid) {
+			$assignment->aid = null;
+			$assignment->uid = $uid;
+
+			drupal_write_record('assignment', $assignment);
+
+			if(isset($assignment->terms)) {
+				foreach($assignment->terms as $term) {
+
+					$assignment_terms = new stdClass();
+					$assignment_terms->aid = $assignment->aid;
+					$assignment_terms->tid = $term;
+					drupal_write_record('assignment_terms', $assignment_terms);
+				}
+			}
+
+			module_invoke_all('assignment_create', $assignment);
+		}
+		$form_state['redirect'] = "node/" . $assignment->sid . "/assignments";
+	}
+
+	/**
+	 * Implements form for editing.
+	 */
+	function assignment_form_edit($form, &$form_state, $assignment = NULL) {
+		$form['expire_date'] = array(
+			'#type'				=> 'textfield',
+			'#title'			=> 'Experation Date',
+			'#default_value'	=> date('m/d/Y', $assignment->expire_date),
+			'#required'			=> TRUE
+		);
+
+		$node = node_load($assignment->sid);
+		$items = field_get_items('node', $node, 'field_categories');
+		$result = db_query("SELECT tid, name
+							FROM {taxonomy_term_data}
+							WHERE vid = :vid", array(':vid' => $items[0]['value']));
+		$term_options = array();
+		foreach($result as $row) {
+			$term_options[$row->tid] = $row->name;
+		}
+
+		if(!empty($term_options)) {
+			$vocab = taxonomy_vocabulary_load($items[0]['value']);
+			$form['terms'] = array(
+				'#type'				=> 'select',
+				'#title'			=> t($vocab->name),
+				'#options'			=> $term_options,
+				'#default_value'	=> $assignment->terms,
+				'#multiple'			=> TRUE,
+				'#requied'			=> TRUE
+			);
+		}
+
+		field_attach_form('assignment', (object) $assignment, $form, $form_state);
+
+		$form['aid'] = array(
+			'#type'		=> 'value',
+			'#value'	=> $assignment->aid
+		);
+
+		$form['uid'] = array(
+			'#type'		=> 'value',
+			'#value'	=> $assignment->uid,
+		);
+
+		$form['sid'] = array(
+			'#type'		=> 'value',
+			'#value'	=> $assignment->sid
+		);
+
+		$form['actions'] = array('#type' => 'actions');
+		$form['actions']['submit'] = array(
+			'#type'		=> 'submit',
+			'#value'	=> t('Update Assignment'),
+			'#weight'	=> 4
+		);
+
+		$form['#after_build'] = array('assignment_form_js');
+
+		return $form;
+	}
+
+	/**
+	 * Submit edit form
+	 */
+	function assignment_form_edit_submit($form, &$form_state) {
+		$assignment = (object) $form_state['values'];
+		field_attach_submit('assignment', $assignment, $form, $form_state);
+		field_attach_presave('assignment', $assignment);
+
+		// remove all previously selected terms
+		$result = db_query("DELETE FROM {assignment_terms}
+							WHERE aid = :aid", array(':aid' => $assignment->aid));
+
+		$assignment->expire_date = strtotime($assignment->expire_date);
+
+		drupal_write_record('assignment', $assignment, 'aid');
+		field_attach_update('assignment', $assignment);
+
+		if(isset($assignment->terms)) {
+			foreach($assignment->terms as $term) {
+				$assignment_terms = new stdClass();
+				$assignment_terms->aid = $assignment->aid;
+				$assignment_terms->tid = $term;
+				drupal_write_record('assignment_terms', $assignment_terms);
+			}
+		}
+		module_invoke_all('assignment_modified', $assignment);
+		$form_state['redirect'] = "node/" . $assignment->sid . "/assignments";
+	}
+
+	/**
+	 * Submit record data form
+	 */
+	function assignment_form_record_data_submit($form, &$form_state) {
+
+
+		$form_state['redirect'] = "node/" . $edit->sid . "/assignments";
+	}
+
+	/**
+	 * Autocomplete for a comma delimited list of users/roles
+	 */
+	function assignment_assignee_autocomplete($str = null) {
+		$matches = array();
+		$items = explode(',', $str);
+		foreach($items as &$item) {
+			$item = trim($item);
+		}
+
+		$item = array_pop($items);
+
+		$result = db_query("SELECT name
+							FROM {users}
+							WHERE LOWER(name) LIKE LOWER(:str)", array(':str' => $item . '%'));
+		foreach($result as $user) {
+			if(count($items) > 0) {
+				$matches[implode(", ", $items) . ", " . $user->name] = check_plain($user->name);
+			} else {
+				$matches[$user->name] = check_plain($user->name);
+			}
+		}
+
+		$result = db_query("SELECT name
+							FROM {role}
+							WHERE LOWER(name) LIKE LOWER(:str)
+									AND name != 'anonymous user'
+									AND name != 'authenticated user'", array(':str' => $item . '%'));
+		foreach($result as $role) {
+			if(count($items) > 0) {
+				$matches[implode(", ", $items) . ", " . $role->name] = check_plain($role->name);
+			} else {
+				$matches[$role->name] = check_plain($role->name);
+			}
+		}
+
+		print drupal_json_encode($matches);
+		exit();
+	}
+
+	/**
+	 * Generate new assignment
+	 */
+	function assignment_generate_new_assignment($assignment_id) {
+		$result = db_query("SELECT uid, sid, expire_date
+							FROM {assignment}
+							WHERE aid = :aid", array(':aid' => $assignment_id))->fetchObject();
+
+		$node = node_load($result->sid);
+		$items = field_get_items('node', $node, 'field_expiration_interval');
+
+		$assignment = new stdClass();
+		$assignment->aid = null;
+		$assignment->uid = $result->uid;
+		$assignment->sid = $result->sid;
+		$assignment->created = mktime();
+		$assignment->expire_date = strtotime($items[0]['value'], $result->expire_date);
+
+		drupal_write_record('assignment', $assignment);
+
+		$result = db_query("SELECT tid
+							FROM assignment_terms
+							WHERE aid = :aid", array(':aid' => $assignment_id));
+		foreach($result as $term) {
+			$assignment_terms = new stdClass();
+			$assignment_terms->aid = $assignment->aid;
+			$assignment_terms->tid = $term->tid;
+			drupal_write_record('assignment_terms', $assignment_terms);
+		}
+		module_invoke_all('assignment_create', $assignment);
+	}
+
+/**
+ * Hook to handle successful submission of assignment data
+ * @param $assignment_id
+ */
+function assignment_data_submitted($assignment_id) {
+
+  dpm("assignment_data_submitted for assignment $assignment_id");
+
+}
+

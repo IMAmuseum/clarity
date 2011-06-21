@@ -1,0 +1,9 @@
+name = Assignment
+description = The assignment entity for the dashboard package.
+version = 7.x-1.0
+package = Dashboard
+core = 7.x
+files[] = assignment.install
+files[] = assignment.module
+files[] = assignment.admin.inc
+files[] = assignment.views.inc
