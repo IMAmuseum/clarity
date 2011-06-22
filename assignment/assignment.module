@@ -435,7 +435,9 @@
  */
 function assignment_data_submitted($assignment_id) {
 
-  dpm("assignment_data_submitted for assignment $assignment_id");
+  //dpm("assignment_data_submitted for assignment $assignment_id");
+  // TODO: delete the old assignment
+  assignment_generate_new_assignment($assignment_id);
 
 }
 

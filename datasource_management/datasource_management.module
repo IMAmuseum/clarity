@@ -141,6 +141,8 @@ function datasource_management_submit_data_form_submit($form, &$form_state) {
 
   // Tell the assignment module that this assignment is complete
   module_invoke('assignment', 'data_submitted', $form_state['values']['assignment']->aid);
+  global $user;
+  $form_state['redirect'] = "user/{$user->uid}/assignments";
 
 }
 
