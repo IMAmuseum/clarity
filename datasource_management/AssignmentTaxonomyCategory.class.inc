@@ -3,7 +3,25 @@
 /**
  * The AssignmentTaxonomyCategory class manages the data associated with taxonomy terms assigned to assignments.
  */
-class AssignmentTaxonomyCategory extends TaxonomyCategory {
+class AssignmentTaxonomyCategory implements DataCategoryIfc {
+
+
+  /**
+   * Helper function to get terms for a vocabulary.
+   */
+  public static function getTermsForVocabulary($vid) {
+    $result = db_query("SELECT tid, name
+                        FROM {taxonomy_term_data}
+                        WHERE vid = :vid", array(':vid' => $vid));
+
+    $terms = array();
+    foreach($result as $row) {
+      $terms[$row->tid] = $row->name;
+    }
+
+    return $terms;
+
+  }
 
 
   public static function clearCategories($assignment_id) {

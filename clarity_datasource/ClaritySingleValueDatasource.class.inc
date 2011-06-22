@@ -101,7 +101,7 @@ class ClaritySingleValueDatasource implements DatasourceIfc, DatasourceAssignmen
     $node = node_load($form['sid']['#value']);
     $items = field_get_items('node', $node, 'field_categories');
     $vid = $items[0]['value'];
-    $term_options = TaxonomyCategory::getTermsForVocabulary($vid);
+    $term_options = AssignmentTaxonomyCategory::getTermsForVocabulary($vid);
 
     if(!empty($term_options)) {
       $vocab = taxonomy_vocabulary_load($vid);
