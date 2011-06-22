@@ -1,9 +1,0 @@
-name = Dashboard Datasource
-description = The core data source module for the dashboard package
-core = 7.x
-package = "Dashboard"
-configure = admin/config/datasources/dashboard
-dependencies[] = datasource_management
-
-
-

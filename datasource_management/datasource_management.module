@@ -233,6 +233,74 @@ function _datasource_management_get_datasource($dsid) {
 }
 
 
+function _datasource_management_get_datasource_for_stat($stat_id) {
+
+  $stat = node_load($stat_id);
+  return _datasource_management_get_datasource($stat->field_datasource['und'][0]['dsid']);
+
+}
+
+
+/*****************************************************************************
+ * Assignment Hooks                                                          *
+ *****************************************************************************/
+
+
+function datasource_management_form_alter(&$form, &$form_state, $form_id) {
+
+  if (substr($form_id, 0, 15) == 'assignment_form') {
+    $ds_info = _datasource_management_get_datasource_for_stat($form['sid']['#value']);
+    call_user_func_array($ds_info->class . '::assignmentFormFields',
+                         array(&$form, &$form_state, $form_id));
+  }
+
+}
+
+
+function datasource_management_entity_load($entities, $type) {
+
+  if ($type != 'assignment') return;
+
+  // Sort so that we can make one call per datasource
+  $ds_sorted = array();
+  foreach ($entities as $assignment) {
+    $ds_info = _datasource_management_get_datasource_for_stat($assignment->sid);
+    $ds_sorted[$ds_info->class][] = $assignment;
+  }
+
+  foreach($ds_sorted as $class => $entities) {
+    call_user_func($class . '::onAssignmentLoad', $entities);
+  }
+
+}
+
+
+function datasource_management_entity_presave($entity, $type) {
+
+  if ($type != 'assignment') return;
+
+  $ds_info = _datasource_management_get_datasource_for_stat($entity->sid);
+  call_user_func($ds_info->class . '::onAssignmentPresave', $entity);
+
+
+}
+
+
+function datasource_management_assignment_update($assignment) {
+
+  $ds_info = _datasource_management_get_datasource_for_stat($assignment->sid);
+  call_user_func($ds_info->class . '::onAssignmentUpdate', $assignment);
+
+}
+
+
+function datasource_management_assignment_insert($assignment) {
+
+  $ds_info = _datasource_management_get_datasource_for_stat($assignment->sid);
+  call_user_func($ds_info->class . '::onAssignmentInsert', $assignment);
+
+}
+
 /*****************************************************************************
  * Field Hooks                                                               *
  *****************************************************************************/
