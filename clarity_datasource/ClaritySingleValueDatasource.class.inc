@@ -61,6 +61,41 @@ class ClaritySingleValueDatasource extends Datasource {
   }
 
 
+  public static function getData($stat_nid, $options = array()) {
+
+    $q = 'SELECT * FROM {clarity_value_single_float} WHERE stat_nid = :stat';
+    $args = array(':stat' => $stat_nid);
+
+    if (isset($options['uid'])) {
+      $q .= ' AND uid = :uid';
+      $args[':uid'] = $options['uid'];
+    }
+
+    $result = db_query($q, $args);
+    $data = array();
+    foreach($result as $record) {
+      $d = new Data($record->uid, $record->timestamp, $record->value);
+      $d->modified_time = $record->modified_time;
+      $d->category = $record->category;
+      $d->annotation = $record->annotation;
+      $data[] = $d;
+    }
+
+    return $data;
+
+  }
+
+
+  public static function createDataTable($stat_nid) {
+
+    $data = ClaritySingleValueDatasource::getData($stat_nid);
+
+    return theme('clarity_single_value_table', array('data' => $data));
+
+
+  }
+
+
   public static function assignmentFormFields(&$form, &$form_state, $form_id) {
 
     $node = node_load($form['sid']['#value']);

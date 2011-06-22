@@ -197,12 +197,14 @@ function datasource_management_create_datasource($module, $class, $label, $data 
 }
 
 function datasource_management_display_stat_data($stat) {
-  dpm($stat);
 
   if ($stat->type != 'statistic') return t('No data');
 
+  $ds_info = _datasource_management_get_datasource_for_stat($stat->nid);
+  $data_table = call_user_func($ds_info->class . '::createDataTable', $stat->nid);
 
-  return 'data table';
+  return $data_table;
+
 }
 
 

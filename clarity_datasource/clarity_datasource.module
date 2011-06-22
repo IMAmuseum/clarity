@@ -45,6 +45,36 @@ function clarity_datasource_menu() {
 }
 
 
+function clarity_datasource_theme() {
+
+  return array(
+    'clarity_single_value_table' => array(
+      'template' => 'clarity_single_value_table',
+      'arguments' => array(
+        'data' => array()
+      )
+    ),
+    'clarity_single_value_table_row' => array(
+      'template' => 'clarity_single_value_table_row',
+      'arguments' => array(
+        'data' => null
+      )
+    ),
+
+  );
+
+}
+
+function clarity_datasource_preprocess_clarity_single_value_table(&$vars) {
+
+  $vars['row_content'] = '';
+  foreach($vars['data'] as $data) {
+    $vars['row_content'] .= theme('clarity_single_value_table_row', array('data' => $data));
+  }
+
+}
+
+
 /**
  * Configuration form hook
  */
