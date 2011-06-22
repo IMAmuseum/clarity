@@ -253,9 +253,16 @@ function _datasource_management_get_datasource_for_stat($stat_id) {
 function datasource_management_form_alter(&$form, &$form_state, $form_id) {
 
   if (substr($form_id, 0, 15) == 'assignment_form') {
+
     $ds_info = _datasource_management_get_datasource_for_stat($form['sid']['#value']);
-    call_user_func_array($ds_info->class . '::assignmentFormFields',
-                         array(&$form, &$form_state, $form_id));
+    $ds = new $ds_info->class;
+
+    if ($ds instanceof DatasourceAssignmentIfc) {
+      $ds->assignmentFormFields($form, $form_state, $form_id);
+    }
+
+    unset($ds);
+
   }
 
 }
@@ -273,7 +280,13 @@ function datasource_management_entity_load($entities, $type) {
   }
 
   foreach($ds_sorted as $class => $entities) {
-    call_user_func($class . '::onAssignmentLoad', $entities);
+
+    $ds = new $class;
+    if ($ds instanceof DatasourceAssignmentIfc) {
+      $ds->onAssignmentLoad($entities);
+    }
+    unset($ds);
+
   }
 
 }
@@ -284,8 +297,12 @@ function datasource_management_entity_presave($entity, $type) {
   if ($type != 'assignment') return;
 
   $ds_info = _datasource_management_get_datasource_for_stat($entity->sid);
-  call_user_func($ds_info->class . '::onAssignmentPresave', $entity);
+  $ds = new $ds_info->class;
+  if ($ds instanceof DatasourceAssignmentIfc) {
+    $ds->onAssignmentPresave($entity);
+  }
 
+  unset($ds);
 
 }
 
@@ -293,7 +310,12 @@ function datasource_management_entity_presave($entity, $type) {
 function datasource_management_assignment_update($assignment) {
 
   $ds_info = _datasource_management_get_datasource_for_stat($assignment->sid);
-  call_user_func($ds_info->class . '::onAssignmentUpdate', $assignment);
+  $ds = new $ds_info->class;
+  if ($ds instanceof DatasourceAssignmentIfc) {
+    $ds->onAssignmentUpdate($assignment);
+  }
+
+  unset($ds);
 
 }
 
@@ -301,7 +323,12 @@ function datasource_management_assignment_update($assignment) {
 function datasource_management_assignment_insert($assignment) {
 
   $ds_info = _datasource_management_get_datasource_for_stat($assignment->sid);
-  call_user_func($ds_info->class . '::onAssignmentInsert', $assignment);
+  $ds = new $ds_info->class;
+  if ($ds instanceof DatasourceAssignmentIfc) {
+    $ds->onAssignmentInsert($assignment);
+  }
+
+  unset($ds);
 
 }
 

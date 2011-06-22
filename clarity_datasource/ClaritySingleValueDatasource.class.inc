@@ -1,6 +1,6 @@
 <?php
 
-class ClaritySingleValueDatasource extends Datasource {
+class ClaritySingleValueDatasource implements DatasourceIfc, DatasourceAssignmentIfc {
 
 
   public static function getDataFormFields($stat) {

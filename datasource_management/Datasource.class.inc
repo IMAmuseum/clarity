@@ -3,7 +3,7 @@
 /**
  * This interface must be defined by a Datasource.
  */
-interface iDatasource {
+interface DatasourceIfc {
 
   /**
    * A function to get fields for the data entry form.
@@ -35,6 +35,17 @@ interface iDatasource {
 }
 
 
+interface DatasourceAssignmentIfc {
+
+  public static function assignmentFormFields(&$form, &$form_state, $form_id);
+  public static function onAssignmentInsert($assignment);
+  public static function onAssignmentLoad($assignment);
+  public static function onAssignmentPresave($assignment);
+  public static function onAssignmentUpdate($assignment);
+
+}
+
+
 class Data {
 
     public $uid;
@@ -54,13 +65,3 @@ class Data {
 }
 
 
-abstract class Datasource implements iDatasource {
-
-  // These methods do not have to be overridden (e.g. the datasource does not have categories)
-  public static function assignmentFormFields(&$form, &$form_state, $form_id) {}
-  public static function onAssignmentInsert($assignment) {}
-  public static function onAssignmentLoad($assignment) {}
-  public static function onAssignmentPresave($assignment) {}
-  public static function onAssignmentUpdate($assignment) {}
-
-}
