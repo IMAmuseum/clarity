@@ -6,3 +6,5 @@ dependencies[] = 'assignment'
 files[] = 'Datasource.class.inc'
 files[] = 'DataCategory.class.inc'
 files[] = 'TaxonomyCategory.class.inc'
+files[] = 'AssignmentTaxonomyCategory.class.inc'
+

@@ -63,9 +63,32 @@ class ClaritySingleValueDatasource extends Datasource {
 
   public static function assignmentFormFields(&$form, &$form_state, $form_id) {
 
-    $data_cat = new TaxonomyCategory();
-    $data_cat->assignmentFormFields($form, $form_state, $form_id);
-    unset($data_cat);
+    $node = node_load($form['sid']['#value']);
+    $items = field_get_items('node', $node, 'field_categories');
+    $vid = $items[0]['value'];
+    $term_options = TaxonomyCategory::getTermsForVocabulary($vid);
+
+    if(!empty($term_options)) {
+      $vocab = taxonomy_vocabulary_load($vid);
+      $form['terms'] = array(
+        '#type'         => 'select',
+        '#title'        => t($vocab->name),
+        '#options'      => $term_options,
+        '#multiple'     => TRUE,
+        '#required'      => TRUE
+      );
+    } else {
+
+      return;
+
+    }
+
+    if ($form_id == 'assignment_form_edit')  {
+      $assignment = assignment_load($form['aid']['#value']);
+      if(!empty($term_options)) {
+        $form['terms']['#default_value'] = $assignment->terms;
+      }
+    }
 
   }
 
@@ -73,14 +96,7 @@ class ClaritySingleValueDatasource extends Datasource {
   public static function onAssignmentLoad($assignments) {
 
     foreach ($assignments as $assignment) {
-      $result = db_query("SELECT tid
-                          FROM {assignment_terms}
-                          WHERE aid = :aid", array(':aid' => $assignment->aid));
-      $terms = array();
-      foreach($result as $row) {
-          array_push($terms, $row->tid);
-      }
-      $assignment->terms = $terms;
+      $assignment->terms = AssignmentTaxonomyCategory::loadCategories($assignment->aid);
     }
 
   }
@@ -88,9 +104,7 @@ class ClaritySingleValueDatasource extends Datasource {
 
   public static function onAssignmentPresave($assignment) {
 
-    // remove all previously selected terms
-    $result = db_query("DELETE FROM {assignment_terms}
-                        WHERE aid = :aid", array(':aid' => $assignment->aid));
+    AssignmentTaxonomyCategory::clearCategories($assignment->aid);
 
   }
 
@@ -98,12 +112,7 @@ class ClaritySingleValueDatasource extends Datasource {
   public static function onAssignmentUpdate($assignment) {
 
     if(isset($assignment->terms)) {
-      foreach($assignment->terms as $term) {
-          $assignment_terms = new stdClass();
-          $assignment_terms->aid = $assignment->aid;
-          $assignment_terms->tid = $term;
-          drupal_write_record('assignment_terms', $assignment_terms);
-      }
+      AssignmentTaxonomyCategory::saveCategories($assignment->aid, $assignment->terms);
     }
 
   }
@@ -112,12 +121,7 @@ class ClaritySingleValueDatasource extends Datasource {
   public static function onAssignmentInsert($assignment) {
 
     if(isset($assignment->terms)) {
-      foreach($assignment->terms as $term) {
-        $assignment_terms = new stdClass();
-        $assignment_terms->aid = $assignment->aid;
-        $assignment_terms->tid = $term;
-        drupal_write_record('assignment_terms', $assignment_terms);
-      }
+      AssignmentTaxonomyCategory::saveCategories($assignment->aid, $assignment->terms);
     }
 
   }
