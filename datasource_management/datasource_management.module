@@ -22,6 +22,16 @@ function datasource_management_menu() {
     'type'              => MENU_NORMAL_ITEM,
   );
 
+
+  $items['datasource/wire'] = array(
+    'title'             => 'Wire protocol access',
+    'page callback'     => 'datasource_management_wire',
+    'file'              => 'datasource_management.wire.inc',
+    'access arguments'  => array('access content'),
+    'type'              => MENU_CALLBACK,
+  );
+
+
   $items['node/%node/data'] = array(
     'title'             => 'Statistic Data',
     'page callback'     => 'datasource_management_display_stat_data',

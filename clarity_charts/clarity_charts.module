@@ -1,0 +1,25 @@
+<?php
+
+
+function clarity_charts_node_view($node, $view_mode, $langcode) {
+
+  if ($node->type != 'statistic') return;
+
+  if ($view_mode == 'full') {
+
+    // TODO: determine chart type (based on stat setting?)
+
+    drupal_add_js("https://www.google.com/jsapi");
+    drupal_add_js(drupal_get_path('module', 'clarity_charts') . '/clarity_charts.js');
+
+    $node->content['chart'] = array(
+      '#markup' => "<div id='main-chart'>chart</div>",
+      '#weight' => -10
+    );
+
+    drupal_add_js("clarity_charts.push(new ClarityChart('main-chart', 'line'));", 'inline');
+
+  }
+
+
+}
