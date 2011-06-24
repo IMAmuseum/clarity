@@ -1,6 +1,6 @@
 <?php
 
-class ClarityDatasourceComment implements DatasourceIfc {
+class ClarityDatasourceComment implements DatasourceIfc, DatasourceStatIfc {
 
 
   public static function getDataFormFields($stat) {
@@ -35,11 +35,8 @@ class ClarityDatasourceComment implements DatasourceIfc {
     try {
 
       $result = db_insert('clarity_datasource_comment')->fields(array(
-        'stat_nid'      => $form_state['values']['assignment']->sid,
-        'uid'           => $user->uid,
-        'timestamp'     => $form_state['values']['assignment']->expire_date,
-        'value'         => $form_state['values']['value'],
-        'modified_time' => time()
+        'aid'      		=> $form_state['values']['assignment']->aid,
+        'value'         => $form_state['values']['value']
       ))->execute();
 
     } catch (PDOException $e) {
@@ -56,9 +53,9 @@ class ClarityDatasourceComment implements DatasourceIfc {
   }
 
 
-  public static function getData($stat_nid, $options = array()) {
-
-    $q = 'SELECT * FROM {clarity_datasource_comment} WHERE stat_nid = :stat';
+  public static function getData($stat_id, $options) {
+	
+    $q = 'SELECT * FROM {clarity_datasource_comment} c INNER JOIN {assignment} ON c.aid = a.aid WHERE a.sid = :stat';
     $args = array(':stat' => $stat_nid);
 
     if (isset($options['uid'])) {
@@ -69,8 +66,8 @@ class ClarityDatasourceComment implements DatasourceIfc {
     $result = db_query($q, $args);
     $data = array();
     foreach($result as $record) {
-      $d = new Data($record->uid, $record->timestamp, $record->value);
-      $d->modified_time = $record->modified_time;
+      $d = new Data($record->uid, $record->modified_date, $record->value);
+      $d->modified_time = $record->modified_date;
       $d->category = $record->category;
       $data[] = $d;
     }
@@ -91,6 +88,12 @@ class ClarityDatasourceComment implements DatasourceIfc {
   
   public static function getStatConfigFormFields($stat) {
   	$fields = array();
+  	$fields['comment_title'] = array(
+  		'#type'			=> 'textfield',
+  		'#title'		=> 'Title',
+  		'#description'	=> 'enter the title of your comment field',
+  		'#required'		=> TRUE
+  	);
   	$fields['required'] = array(
   		'#type'			=> 'checkbox',
   		'#title'		=> 'Required',
@@ -98,7 +101,7 @@ class ClarityDatasourceComment implements DatasourceIfc {
   	return $fields;
   }
   
-  public static function validateStatConfigForm() {
+  public static function validateStatConfigForm($stat) {
   	return;
   }
 
