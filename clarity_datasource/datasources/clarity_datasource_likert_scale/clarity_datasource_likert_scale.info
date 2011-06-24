@@ -1,0 +1,8 @@
+name = Clarity Datasource Linkert Scale
+description = The likert scale datasource for Clarity.
+core = 7.x
+package = "Clarity"
+dependencies[] = datasource_management
+files[] = 'ClarityLikertScaleDatasource.class.inc'
+
+
