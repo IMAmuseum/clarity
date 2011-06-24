@@ -1,0 +1,52 @@
+<?php
+/**
+ * @file
+ * This module implements the core data source for the Clarity package.
+ *
+ * A data source presents an interface through which stat data can be submitted
+ * by users for stats, and edited, deleted, or plotted on charts.
+ *
+ * Custom versions of this module can be implemented which poll external datasources.
+ * By implementing the same hook interface, these custom modules can supply data to
+ * charts.
+ */
+
+/*
+ * Implementation of hook_help
+ */
+function clarity_datasource_likert_scale_help($path, $arg) 
+{
+    switch($path) {
+      case 'admin/help#clarity_datasource_likert_scale':
+        return '<p>' . t("Implements the likert scale datasource for the Clarity package.") . '</p>';
+        break;
+    }
+}
+
+
+function clarity_datasource_likert_scale_theme() 
+{
+    return array(
+        'clarity_likert_scale_table' => array(
+            'template' => 'clarity_likert_scale_table',
+            'arguments' => array(
+                'data' => array()
+            )
+        ),
+        'clarity_likert_scale_table_row' => array(
+            'template' => 'clarity_likert_scale_table_row',
+            'arguments' => array(
+                'data' => null
+            )
+        ),
+    );
+
+}
+
+function clarity_datasource_likert_scale_preprocess_clarity_likert_scale_table(&$vars) 
+{
+    $vars['row_content'] = '';
+    foreach($vars['data'] as $data) {
+        $vars['row_content'] .= theme('clarity_likert_scale_table_row', array('data' => $data));
+    }
+}

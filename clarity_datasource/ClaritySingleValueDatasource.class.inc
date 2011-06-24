@@ -1,6 +1,6 @@
 <?php
 
-class ClaritySingleValueDatasource implements DatasourceIfc, DatasourceAssignmentIfc {
+class ClaritySingleValueDatasource implements DatasourceIfc, DatasourceAssignmentIfc, DatasourceStatIfc {
 
 
   public static function getDataFormFields($stat) {
@@ -60,6 +60,24 @@ class ClaritySingleValueDatasource implements DatasourceIfc, DatasourceAssignmen
 
   }
 
+
+  public static function getStatConfigFormFields($stat) {
+
+    $fields['single-value'] = array(
+      '#type' => 'textfield',
+      '#title' => t('test'),
+      '#description' => 'foo',
+      '#required' => true
+    );
+
+    return $fields;
+
+  }
+
+  public static function validateStatConfigData($stat) {
+
+
+  }
 
   public static function getData($stat_nid, $options = array()) {
 

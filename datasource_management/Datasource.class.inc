@@ -24,13 +24,20 @@ interface DatasourceIfc {
    * A function to fetch all data for a stat
    * Returns an array of Data objects
    */
-  static function getData($stat_id);
+  static function getData($stat_id, $options);
 
   /**
    * A function to create the data table for a stat
    * Returns the content for the data table
    */
   static function createDataTable($stat_id);
+
+}
+
+interface DatasourceStatIfc {
+
+  public static function getStatConfigFormFields($stat);
+  public static function validateStatConfigForm($stat);
 
 }
 
