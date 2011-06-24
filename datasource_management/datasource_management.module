@@ -97,10 +97,8 @@ function datasource_management_page() {
 function datasource_management_submit_data_form($form, &$form_state, $assignment_id) {
 
   $assignment = assignment_load($assignment_id);
-  //dpm($assignment);
 
   $stat = node_load($assignment->sid);
-  //dpm($stat);
 
   $content = 'Statistic: ' . l($stat->title, 'node/' . $stat->nid);
 
@@ -134,9 +132,7 @@ function datasource_management_submit_data_form($form, &$form_state, $assignment
 
 
 function datasource_management_stat_config_form($form, &$form_state, $stat) {
-
   $ds_info = _datasource_management_get_datasource_for_stat($stat->nid);
-
   $form['datasource'] = array (
     '#type' => 'value',
     '#value' => $ds_info

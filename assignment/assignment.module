@@ -437,6 +437,7 @@ function assignment_data_submitted($assignment_id) {
   
 	$assignment->aid = $assignment_id;
   $assignment->complete = 1;
+  $assignment->modified_date = mktime();
   drupal_write_record('assignment', $assignment, 'aid');
   
   assignment_generate_new_assignment($assignment_id);
