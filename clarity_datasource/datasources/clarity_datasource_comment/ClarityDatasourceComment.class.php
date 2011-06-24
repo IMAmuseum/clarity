@@ -6,7 +6,7 @@ class ClarityDatasourceComment implements DatasourceIfc {
   public static function getDataFormFields($stat) {
 
     $fields['value'] = array(
-      '#type' => 'textfield',
+      '#type' => 'textarea',
       '#title' => t('Comment'),
       '#description' => $stat->field_unit['und'][0]['value'],
       '#required' => true
@@ -88,6 +88,19 @@ class ClarityDatasourceComment implements DatasourceIfc {
 
 
   }
+  
+  public static function getStatConfigFormFields($stat) {
+  	$fields = array();
+  	$fields['required'] = array(
+  		'#type'			=> 'checkbox',
+  		'#title'		=> 'Required',
+  	);
+  	return $fields;
+  }
+  
+  public static function validateStatConfigForm() {
+  	return;
+  }
 
 
- }
+}
