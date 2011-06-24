@@ -1,5 +1,6 @@
 core = "7.x"
 dependencies[] = "views"
+dependencies[] = "php"
 description = "UI elements used by statistic management"
 features[ctools][] = "views:views_default:3.0"
 features[views_view][] = "Assignments"
