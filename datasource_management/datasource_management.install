@@ -58,7 +58,7 @@ function datasource_management_schema() {
     ),
     'primary key' => array('dsid'),
     'unique keys' => array(
-      'name' => array('module','name')
+      'name' => array('module','class')
     )
   );  
   
