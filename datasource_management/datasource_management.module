@@ -42,10 +42,33 @@ function datasource_management_menu() {
     'weight'            => 2
   );
 
+  $items['node/%node/datasource-config'] = array(
+    'title'             => 'Datasource Configuration',
+    'page callback'     => 'drupal_get_form',
+    'page arguments'    => array('datasource_management_config_form', 1),
+    'access callback'   => 'datasource_management_stat_data_access',
+    'access arguments'  => array(1, 'administer assignments'),
+    'type'              => MENU_LOCAL_TASK,
+    'weight'            => 2
+  );
+  
   return $items;
 
 }
 
+
+function datasource_management_config_form($form, &$form_state, $assignment_id) {
+	$fields = array();
+	
+	$fields['save_button'] = array(
+		'#type'		=> 'submit'
+	);
+	
+}
+
+function datasource_management_config_form_submit($form, &$form_state) {
+	return;
+}
 
 /**
  * Only show the data tab on statistic nodes for users who have access

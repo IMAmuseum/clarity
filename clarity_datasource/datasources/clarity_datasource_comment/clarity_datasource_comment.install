@@ -1,0 +1,71 @@
+<?php 
+
+function clarity_datasource_comment_install() {
+
+  datasource_management_create_datasource('clarity_datasource_comment', 
+                                          'ClarityDatasourceComment',
+                                          'Comment Datasource');
+
+}
+
+
+function clarity_datasource_comment_schema() {
+
+  $schema['clarity_datasource_comment'] = array(
+    'description' => 'Stores comments for stats',
+    'fields' => array(
+      'stat_nid' => array(
+        'type' => 'int',
+        'unsigned' => true,
+        'not null' => true,
+        'description' => 'The stat corresponding to this value'
+      ),
+      'uid' => array(
+        'type' => 'int',
+        'unsigned' => true,
+        'not null' => true, // All stats tracked by this datasource are user-submitted
+        'description' => 'The user who submitted this value'
+      ),
+      'timestamp' => array(
+        'type' => 'int',
+        'unsigned' => true,
+        'not null' => true,
+        'description' => 'The time corresponding to this value'      
+      ),
+      'category' => array(
+        'type' => 'int',
+        'unsigned' => 'true',
+        'not null' => false,
+        'default' => NULL,
+        'description' => 'The category for this value (optional)'
+      ),
+      'value' => array(
+        'type' => 'text',
+        'not null' => false,
+        'default' => NULL,
+        'description' => 'The comment text'
+      ),
+      'modified_time' => array(
+        'type' => 'int',
+        'unsigned' => true,
+        'not null' => true,
+        'description' => 'The last time this value was modified'      
+      )
+      
+    ),
+    'indexes' => array(
+        'stat' => array('stat_nid'),
+        'stat_user' => array('stat_nid', 'uid'),
+        'stat_user_cat' => array('stat_nid', 'uid', 'category'),
+        'stat_cat' => array('stat_nid', 'category')        
+    ),
+    'foreign keys' => array(
+      'stat_nid' => array('node' => 'nid'),
+      'uid' => array('users' => 'uid'),
+    ),
+    'primary key' => array('stat_nid', 'uid', 'timestamp', 'category')      
+  );
+
+  return $schema; 
+
+}
