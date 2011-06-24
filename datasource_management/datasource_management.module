@@ -160,6 +160,18 @@ function datasource_management_stat_config_form($form, &$form_state, $stat) {
 
 }
 
+
+function datasource_management_stat_config_form_validate($form, &$form_state) {
+
+  $ds = new $form['datasource']['#value']->class;
+  if ($ds instanceof DatasourceStatIfc) {
+    $ds->validateStatConfigForm($form, $form_state);
+  }
+  unset($ds);
+
+}
+
+
 /**
  * Form validation for the submit_data form
  * @param $form
