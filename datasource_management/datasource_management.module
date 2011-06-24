@@ -57,19 +57,6 @@ function datasource_management_menu() {
 }
 
 
-function datasource_management_config_form($form, &$form_state, $assignment_id) {
-	$fields = array();
-
-	$fields['save_button'] = array(
-		'#type'		=> 'submit'
-	);
-
-}
-
-function datasource_management_config_form_submit($form, &$form_state) {
-	return;
-}
-
 /**
  * Only show the data tab on statistic nodes for users who have access
  * @param unknown_type $node

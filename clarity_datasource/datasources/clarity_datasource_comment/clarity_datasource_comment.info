@@ -3,4 +3,4 @@ description = The comment data source module for Clarity
 core = 7.x
 package = "Clarity"
 dependencies[] = datasource_management
-files[] = 'ClarityDatasourceComment.class.inc'
+files[] = 'ClarityDatasourceComment.class.php'
