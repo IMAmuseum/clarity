@@ -1,18 +1,27 @@
 <?php
 define('VID', 2);
 
-class ClarityMultiTermWithFloatDatasource implements DatasourceIfc {
+class ClarityMultiTermWithFloatDatasource implements DatasourceIfc, DatasourceStatIfc {
 
     public static function getStatConfigFormFields($stat) {
+        $options = array('' => 'Select a vocabulary');
         $vocabs = taxonomy_get_vocabularies();
+        foreach($vocabs as $vid => $vocab) {
+            $options[$vid] = $vocab->name;
+        }
 
-        $form['clarity_multiterm_with_float'] = array(
+        $fields['clarity_multiterm_with_float'] = array(
             '#type'     => 'select',
             '#title'    => t('Vocabulary'),
-            '#options'  => $vocabs,
+            '#options'  => $options,
+            '#required' => TRUE,
         );
 
-        return $form;
+        return $fields;
+    }
+
+    public static function validateStatConfigForm($form_state) {
+
     }
 
     public static function getDataFormFields($stat) {
@@ -67,42 +76,21 @@ class ClarityMultiTermWithFloatDatasource implements DatasourceIfc {
 
 
     public static function getData($stat_nid, $options = array()) {
-        //TODO
-
-        /****
-        $q = 'SELECT * FROM {clarity_value_single_float} WHERE stat_nid = :stat';
+        $query = 'SELECT * FROM {clarity_value_multiterm_with_float} c INNER JOIN {assignment} a ON c.aid = a.aid WHERE a.sid = :stat';
         $args = array(':stat' => $stat_nid);
-
-        if (isset($options['uid'])) {
-            $q .= ' AND uid = :uid';
-            $args[':uid'] = $options['uid'];
-        }
-
-        $result = db_query($q, $args);
+        $result = db_query($query, $args);
         $data = array();
         foreach($result as $record) {
-            $d = new Data($record->uid, $record->timestamp, $record->value);
-            $d->modified_time = $record->modified_time;
-            $d->category = $record->category;
-            $d->annotation = $record->annotation;
-            $data[] = $d;
+            $data[] = $record;
         }
-        */
 
         return $data;
-
     }
 
 
     public static function createDataTable($stat_nid) {
-        //TODO
-
-        /**
         $data = ClarityMultiTermWithFloatDatasource::getData($stat_nid);
-
-        return theme('clarity_single_value_table', array('data' => $data));
-        */
-
+        return theme('clarity_multiterm_with_value_table', array('data' => $data));
     }
 
     public static function assignmentFormFields(&$form, &$form_state, $form_id) {

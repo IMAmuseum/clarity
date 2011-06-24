@@ -1,1 +1,35 @@
 <?php
+
+function clarity_datasource_multiterm_with_float_theme() {
+    return array(
+        'clarity_multiterm_with_value_table' => array(
+            'arguments' => array(
+                'data' => array(),
+            ),
+        ),
+    );
+}
+
+function theme_clarity_multiterm_with_value_table(&$vars) {
+    $headers = array(
+        'Term',
+        'Value',
+        'Created',
+        'Expired',
+        'Completed by',
+    );
+
+    foreach($vars['data'] as $row) {
+        $term = taxonomy_term_load($row->tid);
+        $user = user_load($row->uid);
+        $rows[] = array(
+            $term->name,
+            $row->value,
+            format_date($row->created),
+            format_date($row->expire_date),
+            $user->name,
+        );
+    }
+
+    return theme('table', array('header' => $headers, 'rows' => $rows));
+}
