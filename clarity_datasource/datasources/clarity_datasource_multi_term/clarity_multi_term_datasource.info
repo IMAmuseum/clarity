@@ -1,0 +1,8 @@
+name = Clarity Datasource Multi-Term
+description = The multi-term data source module for Clarity
+core = 7.x
+package = "Clarity"
+dependencies[] = datasource_management
+files[] = 'ClarityMultiTermDatasource.class.inc'
+
+

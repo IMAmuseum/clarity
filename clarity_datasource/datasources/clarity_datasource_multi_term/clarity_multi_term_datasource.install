@@ -1,0 +1,34 @@
+<?php 
+
+function clarity_multi_term_datasource_install() {
+
+  datasource_management_create_datasource('clarity_datasource', 
+                                          'ClarityMultiTermDatasource',
+                                          'Multi-term');
+}
+
+
+function clarity_multi_term_datasource_schema() {
+
+  $schema['clarity_multi_term'] = array(
+    'description' => 'Stores data for multi-term stats',
+    'fields' => array(
+      'aid' => array(
+        'type' => 'int',
+        'unsigned' => true,
+        'not null' => true,
+        'description' => 'The assignment corresponding to this term'
+      ),
+      'tid' => array(
+        'type' => 'int',
+        'not null' => false,
+        'default' => NULL,
+        'description' => 'The term id'
+      ),
+    ),
+    'primary key' => array('aid', 'tid')      
+  );
+
+  return $schema; 
+
+}
