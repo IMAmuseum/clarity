@@ -8,13 +8,13 @@
 function clarity_datasource_float_theme() {
 
   return array(
-    'clarity_single_value_table' => array(
+    'clarity_float_table' => array(
       'template' => 'clarity_float_table',
       'arguments' => array(
         'data' => array()
       )
     ),
-    'clarity_single_value_table_row' => array(
+    'clarity_float_table_row' => array(
       'template' => 'clarity_float_table_row',
       'arguments' => array(
         'data' => null
@@ -25,7 +25,7 @@ function clarity_datasource_float_theme() {
 
 }
 
-function clarity_datasource_float_preprocess_clarity_single_value_table(&$vars) {
+function clarity_datasource_float_preprocess_clarity_float_table(&$vars) {
 
   $vars['row_content'] = '';
   foreach($vars['data'] as $data) {

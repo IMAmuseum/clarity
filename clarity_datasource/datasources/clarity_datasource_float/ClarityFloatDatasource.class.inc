@@ -108,7 +108,7 @@ class ClarityFloatDatasource implements DatasourceIfc, DatasourceAssignmentIfc, 
 
     $data = ClarityFloatDatasource::getData($stat_nid);
 
-    return theme('clarity_single_value_table', array('data' => $data));
+    return theme('clarity_float_table', array('data' => $data));
 
 
   }
