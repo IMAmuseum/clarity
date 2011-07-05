@@ -1,6 +1,6 @@
 <?php
 
-class ClaritySingleValueDatasource implements DatasourceIfc, DatasourceAssignmentIfc, DatasourceStatIfc {
+class ClarityFloatDatasource implements DatasourceIfc, DatasourceAssignmentIfc, DatasourceStatIfc {
 
 
   public static function getDataFormFields($stat) {
@@ -38,7 +38,7 @@ class ClaritySingleValueDatasource implements DatasourceIfc, DatasourceAssignmen
 
     try {
 
-      $result = db_insert('clarity_value_single_float')->fields(array(
+      $result = db_insert('clarity_value_float')->fields(array(
         'stat_nid'      => $form_state['values']['assignment']->sid,
         'uid'           => $user->uid,
         'timestamp'     => $form_state['values']['assignment']->expire_date,
@@ -74,14 +74,14 @@ class ClaritySingleValueDatasource implements DatasourceIfc, DatasourceAssignmen
 
   }
 
-  public static function validateStatConfigData($stat) {
+  public static function validateStatConfigForm($stat) {
 
 
   }
 
   public static function getData($stat_nid, $options = array()) {
 
-    $q = 'SELECT * FROM {clarity_value_single_float} WHERE stat_nid = :stat';
+    $q = 'SELECT * FROM {clarity_value_float} WHERE stat_nid = :stat';
     $args = array(':stat' => $stat_nid);
 
     if (isset($options['uid'])) {
@@ -106,7 +106,7 @@ class ClaritySingleValueDatasource implements DatasourceIfc, DatasourceAssignmen
 
   public static function createDataTable($stat_nid) {
 
-    $data = ClaritySingleValueDatasource::getData($stat_nid);
+    $data = ClarityFloatDatasource::getData($stat_nid);
 
     return theme('clarity_single_value_table', array('data' => $data));
 

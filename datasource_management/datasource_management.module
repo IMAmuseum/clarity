@@ -251,6 +251,17 @@ function datasource_management_create_datasource($module, $class, $label, $data 
 
 }
 
+
+/**
+ * Remove the datasource associated with the given class from the index.
+ */
+function datasource_management_remove_datasource($class) {
+
+  db_query("DELETE FROM {dashboard_datasource} WHERE class = '$class'");
+
+}
+
+
 function datasource_management_display_stat_data($stat) {
 
   if ($stat->type != 'statistic') return t('No data');

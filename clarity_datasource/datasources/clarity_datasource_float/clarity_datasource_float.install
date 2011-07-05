@@ -1,17 +1,22 @@
 <?php 
 
-function clarity_datasource_install() {
+function clarity_datasource_float_install() {
 
-  datasource_management_create_datasource('clarity_datasource', 
-                                          'ClaritySingleValueDatasource',
+  datasource_management_create_datasource('clarity_datasource_float', 
+                                          'ClarityFloatDatasource',
                                           'Manual Single Value');
 
 }
 
+function clarity_datasource_uninstall() {
 
-function clarity_datasource_schema() {
+  datasource_management_remove_datasource('ClarityFloatDatasource');
 
-  $schema['clarity_value_single_float'] = array(
+}
+
+function clarity_datasource_float_schema() {
+
+  $schema['clarity_value_float'] = array(
     'description' => 'Stores data for single-float stats',
     'fields' => array(
       'stat_nid' => array(

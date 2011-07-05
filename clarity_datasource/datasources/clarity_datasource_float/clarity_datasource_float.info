@@ -1,0 +1,8 @@
+name = Clarity Datasource - Float
+description = The float value data source module for Clarity
+core = 7.x
+package = "Clarity"
+dependencies[] = datasource_management
+files[] = 'ClarityFloatDatasource.class.inc'
+
+

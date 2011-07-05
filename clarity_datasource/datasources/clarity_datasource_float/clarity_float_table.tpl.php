@@ -1,4 +1,4 @@
-<table class='table clarity_single_value'>
+<table class='table clarity_float'>
 <tr>
 <th class='user'>User</th>
 <th class='timestamp'>Timestamp</th>
