@@ -7,6 +7,6 @@ features[field][] = "node-statistic-field_expiration_interval"
 features[field][] = "node-statistic-field_unit"
 features[node][] = "statistic"
 name = "Statistic Management"
-package = "Features"
+package = Clarity
 project = "statistic_management"
 version = "7.x-1.0"

@@ -1,7 +1,7 @@
 name = Assignment
 description = The assignment entity for the dashboard package.
 version = 7.x-1.0
-package = Dashboard
+package = Clarity
 core = 7.x
 files[] = assignment.install
 files[] = assignment.module

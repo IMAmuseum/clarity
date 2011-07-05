@@ -6,6 +6,6 @@ features[ctools][] = "views:views_default:3.0"
 features[views_view][] = "Assignments"
 features[views_view][] = "user_assignments"
 name = "Statistic Management UI"
-package = "Features"
+package = Clarity
 project = "statistic_management_ui"
 version = "7.x-1.0"
