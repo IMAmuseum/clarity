@@ -1,9 +1,0 @@
-name = Datasource Management
-description = Manages datasources for Clarity
-core = 7.x
-package = "Clarity"
-dependencies[] = 'assignment'
-files[] = 'Datasource.class.inc'
-files[] = 'DataCategory.class.inc'
-files[] = 'AssignmentTaxonomyCategory.class.inc'
-

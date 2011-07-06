@@ -1,9 +1,9 @@
 <?php
 
 
-function datasource_management_field_schema($field) {
+function clarity_datasources_field_schema($field) {
 
-  if ($field['type'] != 'dashboard_datasource_reference') return;
+  if ($field['type'] != 'clarity_datasource_reference') return;
 
   return array(
     'columns' => array(
@@ -18,10 +18,10 @@ function datasource_management_field_schema($field) {
 }
 
 
-function datasource_management_schema() {
+function clarity_datasources_schema() {
 
-  $schema['dashboard_datasource'] = array(
-    'description' => 'Stores the dashboard datasource index',
+  $schema['clarity_datasource'] = array(
+    'description' => 'Stores the datasource index',
     'fields' => array(
       'dsid' => array(
         'type' => 'serial',
@@ -35,11 +35,11 @@ function datasource_management_schema() {
         'not null' => true,
         'description' => 'The module responsible for this datasource'
       ),          
-      'name' => array(
+      'class' => array(
         'type' => 'varchar',
         'length' => 48,
         'not null' => true,
-        'description' => 'The machine-readable datasource name'        
+        'description' => 'The class name for this datasource'        
       ), 
       'label' => array(
         'type' => 'varchar',
@@ -58,9 +58,28 @@ function datasource_management_schema() {
     ),
     'primary key' => array('dsid'),
     'unique keys' => array(
-      'name' => array('module','name')
+      'name' => array('module','class')
     )
-  );
+  );  
+  
+  $schema['assignment_terms'] = array(
+    'description' => 'Table for assignment terms.',
+    'fields' => array(
+      'aid' => array(
+        'description'   => 'The primary key for the assignments entity',
+        'type'          => 'int',
+        'unsigned'      => TRUE,
+        'not null'      => TRUE,
+      ),
+      'tid' => array(
+        'description'   => 'The term assigned to this assignment',
+        'type'          => 'int',
+        'unsigned'      => TRUE,
+        'not null'      => TRUE,
+      )
+    ),
+    'primary key' => array('aid', 'tid')
+  );  
   
   return $schema;
   

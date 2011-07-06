@@ -1,6 +1,6 @@
 <?php
 
-function datasource_management_wire($stat_nid) {
+function clarity_datasources_wire($stat_nid) {
 
   $result = array('version' => '0.6');
 
@@ -35,7 +35,7 @@ function datasource_management_wire($stat_nid) {
     print "Node {$params['reqId']} is not a statistic";
     exit();
   }
-  $ds_info = _datasource_management_get_datasource_for_stat($stat->nid);
+  $ds_info = _clarity_datasources_get_datasource_for_stat($stat->nid);
   $data = call_user_func($ds_info->class . '::getData', $stat->nid);
 
   $table = array(

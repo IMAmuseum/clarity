@@ -1,11 +1,16 @@
 <?php 
 
 function clarity_datasource_multiterm_with_float_install() {
-  datasource_management_create_datasource('clarity_datasource_multiterm_with_float', 
-                                          'ClarityMultiTermWithFloatDatasource',
-                                          'Multi Value Term');
+  clarity_datasources_create_datasource('clarity_datasource_multiterm_with_float', 
+                                        'ClarityMultiTermWithFloatDatasource',
+                                        'Multi Value Term');
 }
 
+function clarity_datasource_multiterm_with_float_uninstall() {
+
+  clarity_datasources_remove_datasource('ClarityMultiTermWithFloatDatasource');
+
+}
 
 function clarity_datasource_multiterm_with_float_schema() {
 

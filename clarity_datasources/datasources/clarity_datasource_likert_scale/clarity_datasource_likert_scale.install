@@ -2,12 +2,17 @@
 
 function clarity_datasource_likert_scale_install() {
 
-  datasource_management_create_datasource('clarity_datasource_likert_scale', 
-                                          'ClarityLikertScaleDatasource',
-                                          'Likert Scale');
+  clarity_datasources_create_datasource('clarity_datasource_likert_scale', 
+                                        'ClarityLikertScaleDatasource',
+                                        'Likert Scale');
 
 }
 
+function clarity_datasource_likert_scale_uninstall() {
+
+  clarity_datasources_remove_datasource('ClarityLikertScaleDatasource');
+
+}
 
 function clarity_datasource_likert_scale_schema() {
 

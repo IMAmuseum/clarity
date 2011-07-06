@@ -2,9 +2,15 @@
 
 function clarity_datasource_comment_install() {
 
-  datasource_management_create_datasource('clarity_datasource_comment', 
-                                          'ClarityDatasourceComment',
-                                          'Comment Datasource');
+  clarity_datasources_create_datasource('clarity_datasource_comment', 
+                                        'ClarityDatasourceComment',
+                                        'Comment Datasource');
+
+}
+
+function clarity_datasource_comment_uninstall() {
+
+  clarity_datasources_remove_datasource('ClarityDatasourceComment');
 
 }
 

@@ -2,9 +2,15 @@
 
 function clarity_multi_term_datasource_install() {
 
-  datasource_management_create_datasource('clarity_datasource', 
-                                          'ClarityMultiTermDatasource',
-                                          'Multi-term');
+  clarity_datasources_create_datasource('clarity_datasource', 
+                                        'ClarityMultiTermDatasource',
+                                        'Multi-term');
+}
+
+function clarity_multi_term_datasource_uninstall() {
+
+  clarity_datasources_remove_datasource('ClarityMultiTermDatasource');
+
 }
 
 

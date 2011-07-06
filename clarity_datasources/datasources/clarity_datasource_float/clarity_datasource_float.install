@@ -2,15 +2,15 @@
 
 function clarity_datasource_float_install() {
 
-  datasource_management_create_datasource('clarity_datasource_float', 
-                                          'ClarityFloatDatasource',
-                                          'Manual Single Value');
+  clarity_datasources_create_datasource('clarity_datasource_float', 
+                                        'ClarityFloatDatasource',
+                                        'Manual Single Value');
 
 }
 
-function clarity_datasource_uninstall() {
+function clarity_datasource_float_uninstall() {
 
-  datasource_management_remove_datasource('ClarityFloatDatasource');
+  clarity_datasources_remove_datasource('ClarityFloatDatasource');
 
 }
 

@@ -2,7 +2,7 @@ name = Clarity Datasource - Multiple Terms with Float
 description = Provide a datasource with multiple terms and a float value 
 core = 7.x
 package = "Clarity"
-dependencies[] = datasource_management
+dependencies[] = clarity_datasources
 files[] = 'ClarityMultiTermWithFloatDatasource.class.inc'
 
 

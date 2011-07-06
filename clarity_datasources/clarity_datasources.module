@@ -3,21 +3,21 @@
 /**
  * hook_menu
  */
-function datasource_management_menu() {
+function clarity_datasources_menu() {
 
   $items = array();
 
   $items['submit-data/%'] = array(
     'title'             => 'Data submission form',
     'page callback'     => 'drupal_get_form',
-    'page arguments'    => array('datasource_management_submit_data_form', 1),
+    'page arguments'    => array('clarity_datasources_submit_data_form', 1),
     'access arguments'  => array('access content'),
     'type'              => MENU_NORMAL_ITEM,
   );
 
   $items['datasource'] = array(
     'title'             => 'Datasources',
-    'page callback'     => 'datasource_management_page',
+    'page callback'     => 'clarity_datasources_page',
     'access arguments'  => array('access content'),
     'type'              => MENU_NORMAL_ITEM,
   );
@@ -25,8 +25,8 @@ function datasource_management_menu() {
 
   $items['datasource/wire'] = array(
     'title'             => 'Wire protocol access',
-    'page callback'     => 'datasource_management_wire',
-    'file'              => 'datasource_management.wire.inc',
+    'page callback'     => 'clarity_datasources_wire',
+    'file'              => 'clarity_datasources.wire.inc',
     'access arguments'  => array('access content'),
     'type'              => MENU_CALLBACK,
   );
@@ -34,9 +34,9 @@ function datasource_management_menu() {
 
   $items['node/%node/data'] = array(
     'title'             => 'Statistic Data',
-    'page callback'     => 'datasource_management_display_stat_data',
+    'page callback'     => 'clarity_datasources_display_stat_data',
     'page arguments'    => array(1),
-    'access callback'   => 'datasource_management_stat_data_access',
+    'access callback'   => 'clarity_datasources_stat_data_access',
     'access arguments'  => array(1, 'administer assignments'),
     'type'              => MENU_LOCAL_TASK,
     'weight'            => 2
@@ -45,8 +45,8 @@ function datasource_management_menu() {
   $items['node/%node/datasource-config'] = array(
     'title'             => 'Datasource Configuration',
     'page callback'     => 'drupal_get_form',
-    'page arguments'    => array('datasource_management_stat_config_form', 1),
-    'access callback'   => 'datasource_management_stat_data_access',
+    'page arguments'    => array('clarity_datasources_stat_config_form', 1),
+    'access callback'   => 'clarity_datasources_stat_data_access',
     'access arguments'  => array(1, 'administer assignments'),
     'type'              => MENU_LOCAL_TASK,
     'weight'            => 2
@@ -62,7 +62,7 @@ function datasource_management_menu() {
  * @param unknown_type $node
  * @param unknown_type $access
  */
-function datasource_management_stat_data_access($node, $access) {
+function clarity_datasources_stat_data_access($node, $access) {
 
   if ($node->type != 'statistic') return false;
   return user_access($access);
@@ -73,9 +73,9 @@ function datasource_management_stat_data_access($node, $access) {
 /**
  * List the currently active datasources
  */
-function datasource_management_page() {
+function clarity_datasources_page() {
 
-    $datasources = _datasource_management_get_datasources();
+    $datasources = _clarity_datasources_get_datasources();
     $content = '';
 
     foreach ($datasources as $ds) {
@@ -94,7 +94,7 @@ function datasource_management_page() {
  * @param unknown_type $form_state
  * @param unknown_type $assignment_id
  */
-function datasource_management_submit_data_form($form, &$form_state, $assignment_id) {
+function clarity_datasources_submit_data_form($form, &$form_state, $assignment_id) {
 
   $assignment = assignment_load($assignment_id);
 
@@ -109,7 +109,7 @@ function datasource_management_submit_data_form($form, &$form_state, $assignment
     '#value' => $assignment
   );
 
-  $ds_info = _datasource_management_get_datasource($stat->field_datasource['und'][0]['dsid']);
+  $ds_info = _clarity_datasources_get_datasource($stat->field_datasource['und'][0]['dsid']);
   $form['datasource'] = array (
     '#type' => 'value',
     '#value' => $ds_info
@@ -131,8 +131,8 @@ function datasource_management_submit_data_form($form, &$form_state, $assignment
 }
 
 
-function datasource_management_stat_config_form($form, &$form_state, $stat) {
-  $ds_info = _datasource_management_get_datasource_for_stat($stat->nid);
+function clarity_datasources_stat_config_form($form, &$form_state, $stat) {
+  $ds_info = _clarity_datasources_get_datasource_for_stat($stat->nid);
   $form['datasource'] = array (
     '#type' => 'value',
     '#value' => $ds_info
@@ -157,7 +157,7 @@ function datasource_management_stat_config_form($form, &$form_state, $stat) {
 }
 
 
-function datasource_management_stat_config_form_validate($form, &$form_state) {
+function clarity_datasources_stat_config_form_validate($form, &$form_state) {
 
   $ds = new $form['datasource']['#value']->class;
   if ($ds instanceof DatasourceStatIfc) {
@@ -173,7 +173,7 @@ function datasource_management_stat_config_form_validate($form, &$form_state) {
  * @param $form
  * @param $form_state
  */
-function datasource_management_submit_data_form_validate($form, &$form_state) {
+function clarity_datasources_submit_data_form_validate($form, &$form_state) {
 
   $ds = new $form['datasource']['#value']->class;
   $ds->validateDataForm($form, $form_state);
@@ -187,7 +187,7 @@ function datasource_management_submit_data_form_validate($form, &$form_state) {
  * @param unknown_type $form
  * @param unknown_type $form_state
  */
-function datasource_management_submit_data_form_submit($form, &$form_state) {
+function clarity_datasources_submit_data_form_submit($form, &$form_state) {
 
   // Pass form values to the appropriate datasource
   $ds = new $form['datasource']['#value']->class;
@@ -202,43 +202,43 @@ function datasource_management_submit_data_form_submit($form, &$form_state) {
 }
 
 
-function datasource_management_create_datasource($module, $class, $label, $data = null) {
+function clarity_datasources_create_datasource($module, $class, $label, $data = null) {
 
   if (!module_exists($module)) {
-    watchdog('datasource_management',
+    watchdog('clarity_datasources',
              'module parameter must be an existing module', null, WATCHDOG_ERROR);
     return;
   }
 
   if (!is_string($class)) {
-    watchdog('datasource_management',
+    watchdog('clarity_datasources',
              'class parameter must be a string', null, WATCHDOG_ERROR);
     return;
   }
 
-  $result = db_query("SELECT * FROM {dashboard_datasource} WHERE module = '$module' and class = '$class'");
+  $result = db_query("SELECT * FROM {clarity_datasource} WHERE module = '$module' and class = '$class'");
   $results = $result->fetchAll();
   if (!empty($results)) {
-    watchdog('datasource_management',
+    watchdog('clarity_datasources',
              "datasource $class already exists for $module", null, WATCHDOG_WARNING);
     return;
   }
 
   if (!is_string($label)) {
-    watchdog('datasource_management',
+    watchdog('clarity_datasources',
              'label parameter must be a string', null, WATCHDOG_ERROR);
     return;
   }
 
   $datasource = array(
-    'type' => 'dashboard_datasource',
+    'type' => 'clarity_datasource',
     'module' => $module,
     'class' => $class,
     'label' => $label
   );
 
   if (!is_null($data) && !is_array($data)) {
-    watchdog('datasource_management',
+    watchdog('clarity_datasources',
              'data parameter must be an array if given, setting to null', null, WATCHDOG_WARNING);
     $data = null;
   }
@@ -247,7 +247,7 @@ function datasource_management_create_datasource($module, $class, $label, $data 
 
   $obj = (object)$datasource;
 
-  drupal_write_record('dashboard_datasource', $obj);
+  drupal_write_record('clarity_datasource', $obj);
 
 }
 
@@ -255,18 +255,21 @@ function datasource_management_create_datasource($module, $class, $label, $data 
 /**
  * Remove the datasource associated with the given class from the index.
  */
-function datasource_management_remove_datasource($class) {
+function clarity_datasources_remove_datasource($class) {
 
-  db_query("DELETE FROM {dashboard_datasource} WHERE class = '$class'");
+  db_query("DELETE FROM {clarity_datasource} WHERE class = '$class'");
 
 }
 
 
-function datasource_management_display_stat_data($stat) {
+function clarity_datasources_display_stat_data($stat) {
 
   if ($stat->type != 'statistic') return t('No data');
 
-  $ds_info = _datasource_management_get_datasource_for_stat($stat->nid);
+  $ds_info = _clarity_datasources_get_datasource_for_stat($stat->nid);
+  if (!isset($ds_info)) {
+    return t('No datasource assigned');
+  }
   $data_table = call_user_func($ds_info->class . '::createDataTable', $stat->nid);
 
   return $data_table;
@@ -278,9 +281,9 @@ function datasource_management_display_stat_data($stat) {
  * Database interface                                                        *
  *****************************************************************************/
 
-function _datasource_management_get_datasources() {
+function _clarity_datasources_get_datasources() {
 
-  $results = db_query('SELECT * FROM {dashboard_datasource}');
+  $results = db_query('SELECT * FROM {clarity_datasource}');
 
   if (!$results->rowCount()) return array();
 
@@ -292,21 +295,22 @@ function _datasource_management_get_datasources() {
 }
 
 
-function _datasource_management_get_datasource($dsid) {
+function _clarity_datasources_get_datasource($dsid) {
 
   if (!is_numeric($dsid)) return null;
 
-  $results = db_query("SELECT * FROM {dashboard_datasource} WHERE dsid = $dsid");
+  $results = db_query("SELECT * FROM {clarity_datasource} WHERE dsid = $dsid");
   if (empty($results)) return null;
   foreach ($results as $result) return $result;
 
 }
 
 
-function _datasource_management_get_datasource_for_stat($stat_id) {
+function _clarity_datasources_get_datasource_for_stat($stat_id) {
 
   $stat = node_load($stat_id);
-  return _datasource_management_get_datasource($stat->field_datasource['und'][0]['dsid']);
+  if (!isset($stat->field_datasource) || !count($stat->field_datasource)) return null;
+  return _clarity_datasources_get_datasource($stat->field_datasource['und'][0]['dsid']);
 
 }
 
@@ -316,11 +320,11 @@ function _datasource_management_get_datasource_for_stat($stat_id) {
  *****************************************************************************/
 
 
-function datasource_management_form_alter(&$form, &$form_state, $form_id) {
+function clarity_datasources_form_alter(&$form, &$form_state, $form_id) {
 
   if (substr($form_id, 0, 15) == 'assignment_form') {
 
-    $ds_info = _datasource_management_get_datasource_for_stat($form['sid']['#value']);
+    $ds_info = _clarity_datasources_get_datasource_for_stat($form['sid']['#value']);
     $ds = new $ds_info->class;
 
     if ($ds instanceof DatasourceAssignmentIfc) {
@@ -334,14 +338,14 @@ function datasource_management_form_alter(&$form, &$form_state, $form_id) {
 }
 
 
-function datasource_management_entity_load($entities, $type) {
+function clarity_datasources_entity_load($entities, $type) {
 
   if ($type != 'assignment') return;
 
   // Sort so that we can make one call per datasource
   $ds_sorted = array();
   foreach ($entities as $assignment) {
-    $ds_info = _datasource_management_get_datasource_for_stat($assignment->sid);
+    $ds_info = _clarity_datasources_get_datasource_for_stat($assignment->sid);
     $ds_sorted[$ds_info->class][] = $assignment;
   }
 
@@ -358,11 +362,11 @@ function datasource_management_entity_load($entities, $type) {
 }
 
 
-function datasource_management_entity_presave($entity, $type) {
+function clarity_datasources_entity_presave($entity, $type) {
 
   if ($type != 'assignment') return;
 
-  $ds_info = _datasource_management_get_datasource_for_stat($entity->sid);
+  $ds_info = _clarity_datasources_get_datasource_for_stat($entity->sid);
   $ds = new $ds_info->class;
   if ($ds instanceof DatasourceAssignmentIfc) {
     $ds->onAssignmentPresave($entity);
@@ -373,9 +377,9 @@ function datasource_management_entity_presave($entity, $type) {
 }
 
 
-function datasource_management_assignment_update($assignment) {
+function clarity_datasources_assignment_update($assignment) {
 
-  $ds_info = _datasource_management_get_datasource_for_stat($assignment->sid);
+  $ds_info = _clarity_datasources_get_datasource_for_stat($assignment->sid);
   $ds = new $ds_info->class;
   if ($ds instanceof DatasourceAssignmentIfc) {
     $ds->onAssignmentUpdate($assignment);
@@ -386,9 +390,9 @@ function datasource_management_assignment_update($assignment) {
 }
 
 
-function datasource_management_assignment_insert($assignment) {
+function clarity_datasources_assignment_insert($assignment) {
 
-  $ds_info = _datasource_management_get_datasource_for_stat($assignment->sid);
+  $ds_info = _clarity_datasources_get_datasource_for_stat($assignment->sid);
   $ds = new $ds_info->class;
   if ($ds instanceof DatasourceAssignmentIfc) {
     $ds->onAssignmentInsert($assignment);
@@ -402,41 +406,41 @@ function datasource_management_assignment_insert($assignment) {
  * Field Hooks                                                               *
  *****************************************************************************/
 
-function datasource_management_field_info() {
+function clarity_datasources_field_info() {
 
   return array(
-    'dashboard_datasource_reference' => array(
+    'clarity_datasource_reference' => array(
       'label' => t('Datasource reference'),
       'description' => t('This field stores a reference to a datasource.'),
       'default_widget' => 'options_select',
-      'default_formatter' => 'dashboard_datasource_formatter',
+      'default_formatter' => 'clarity_datasource_formatter',
     )
   );
 
 }
 
 
-function datasource_management_field_formatter_info() {
+function clarity_datasources_field_formatter_info() {
 
   return array(
-      'dashboard_datasource_formatter' => array(
+      'clarity_datasource_formatter' => array(
           'label' => t('Datasource formatter'),
-          'field types' => array('dashboard_datasource_reference'),
+          'field types' => array('clarity_datasource_reference'),
       ),
   );
 
 }
 
 
-function datasource_management_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+function clarity_datasources_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
 
   $element = array();
 
   switch($display['type']) {
-    case 'dashboard_datasource_formatter':
+    case 'clarity_datasource_formatter':
       foreach($items as $delta => $item) {
         if ($item['dsid']) {
-          $ds = _datasource_management_get_datasource($item['dsid']);
+          $ds = _clarity_datasources_get_datasource($item['dsid']);
           if (is_null($ds)) {
             $element[$delta]['#markup'] = '<span>' . t('None') . '</span>';
           } else {
@@ -451,17 +455,17 @@ function datasource_management_field_formatter_view($entity_type, $entity, $fiel
 }
 
 
-function datasource_management_field_widget_info_alter(&$info) {
+function clarity_datasources_field_widget_info_alter(&$info) {
 
-  $info['options_select']['field types'][] = 'dashboard_datasource_reference';
-  $info['options_buttons']['field types'][] = 'dashboard_datasource_reference';
+  $info['options_select']['field types'][] = 'clarity_datasource_reference';
+  $info['options_buttons']['field types'][] = 'clarity_datasource_reference';
 
 }
 
 
-function datasource_management_options_list($field) {
+function clarity_datasources_options_list($field) {
 
-  $datasources = _datasource_management_get_datasources();
+  $datasources = _clarity_datasources_get_datasources();
   foreach($datasources as $datasource) {
     $options[$datasource->dsid] = $datasource->label;
   }
@@ -470,12 +474,12 @@ function datasource_management_options_list($field) {
 }
 
 
-function datasource_management_field_widget_error($element, $error, $form, &$form_state) {
+function clarity_datasources_field_widget_error($element, $error, $form, &$form_state) {
   form_error($element, $error['message']);
 }
 
 
-function datasource_management_field_is_empty($item, $field) {
+function clarity_datasources_field_is_empty($item, $field) {
   return false;
 }
 
