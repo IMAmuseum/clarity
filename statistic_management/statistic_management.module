@@ -17,7 +17,9 @@ function statistic_management_form_alter(&$form, &$form_state, $form_id) {
 			$form['field_categories']['und']['#options'][$vocab->vid] = $vocab->name;
   		}
   		if(property_exists($form_state['build_info']['args'][0], 'field_categories')) {
+  		  if (isset($form['field_categories'])) {
   		    $form['field_categories']['und']['#default_value'] = $form_state['build_info']['args'][0]->field_categories['und'][0]['value'];
+  		  }
   		}
   		return $form;
   	}
