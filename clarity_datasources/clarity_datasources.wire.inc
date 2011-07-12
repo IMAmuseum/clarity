@@ -1,6 +1,6 @@
 <?php
 
-function clarity_datasources_wire($stat_nid) {
+function clarity_datasources_wire($stat) {
 
   $result = array('version' => '0.6');
 
@@ -29,14 +29,20 @@ function clarity_datasources_wire($stat_nid) {
 
   // TODO: read cache?
 
-  $stat = node_load($stat_nid);
+  if (is_numeric($stat)) {
+    $stat = node_load($stat);
+  }
   if (!isset($stat) || ($stat->type != 'statistic')) {
     // TODO: return as an error
     print "Node {$params['reqId']} is not a statistic";
     exit();
   }
   $ds_info = _clarity_datasources_get_datasource_for_stat($stat->nid);
-  $data = call_user_func($ds_info->class . '::getData', $stat->nid);
+  if ($ds_info) {
+    $data = call_user_func($ds_info->class . '::getData', $stat->nid);
+  } else {
+    $data = array();
+  }
 
   $table = array(
       'cols' => array(
