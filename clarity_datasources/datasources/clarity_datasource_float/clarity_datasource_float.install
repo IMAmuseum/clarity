@@ -19,30 +19,11 @@ function clarity_datasource_float_schema() {
   $schema['clarity_value_float'] = array(
     'description' => 'Stores data for single-float stats',
     'fields' => array(
-      'stat_nid' => array(
+      'assignment_id' => array(
         'type' => 'int',
         'unsigned' => true,
         'not null' => true,
-        'description' => 'The stat corresponding to this value'
-      ),
-      'uid' => array(
-        'type' => 'int',
-        'unsigned' => true,
-        'not null' => true, // All stats tracked by this datasource are user-submitted
-        'description' => 'The user who submitted this value'
-      ),
-      'timestamp' => array(
-        'type' => 'int',
-        'unsigned' => true,
-        'not null' => true,
-        'description' => 'The time corresponding to this value'      
-      ),
-      'category' => array(
-        'type' => 'int',
-        'unsigned' => 'true',
-        'not null' => false,
-        'default' => NULL,
-        'description' => 'The category for this value (optional)'
+        'description' => 'The assignment corresponding to this value'
       ),
       'value' => array(
         'type' => 'float',
@@ -50,31 +31,19 @@ function clarity_datasource_float_schema() {
         'default' => NULL,
         'description' => 'The value'
       ),
-      'annotation' => array(
-        'type' => 'text',
-        'not null' => false,
-        'default' => NULL,
-        'description' => 'An annotation for this value (optional)'
-      ),
       'modified_time' => array(
         'type' => 'int',
         'unsigned' => true,
         'not null' => true,
         'description' => 'The last time this value was modified'      
-      )
-      
+      )      
     ),
     'indexes' => array(
-        'stat' => array('stat_nid'),
-        'stat_user' => array('stat_nid', 'uid'),
-        'stat_user_cat' => array('stat_nid', 'uid', 'category'),
-        'stat_cat' => array('stat_nid', 'category')        
     ),
     'foreign keys' => array(
-      'stat_nid' => array('node' => 'nid'),
-      'uid' => array('users' => 'uid'),
+      'assignment_id' => array('assignment' => 'aid'),
     ),
-    'primary key' => array('stat_nid', 'uid', 'timestamp', 'category')      
+    'primary key' => array('assignment_id')      
   );
 
   return $schema; 

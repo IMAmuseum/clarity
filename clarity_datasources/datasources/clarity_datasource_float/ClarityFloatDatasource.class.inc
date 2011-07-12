@@ -12,12 +12,6 @@ class ClarityFloatDatasource implements DatasourceIfc, DatasourceAssignmentIfc, 
       '#required' => true
     );
 
-    $fields['annotation'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Annotation'),
-      '#description' => t('An optional annotation for this entry')
-    );
-
     return $fields;
 
   }
@@ -39,11 +33,8 @@ class ClarityFloatDatasource implements DatasourceIfc, DatasourceAssignmentIfc, 
     try {
 
       $result = db_insert('clarity_value_float')->fields(array(
-        'stat_nid'      => $form_state['values']['assignment']->sid,
-        'uid'           => $user->uid,
-        'timestamp'     => $form_state['values']['assignment']->expire_date,
+        'assignment_id'      => $form_state['values']['assignment']->aid,
         'value'         => $form_state['values']['single-value'],
-        'annotation'    => $form_state['values']['annotation'],
         'modified_time' => time()
       ))->execute();
 
@@ -81,21 +72,21 @@ class ClarityFloatDatasource implements DatasourceIfc, DatasourceAssignmentIfc, 
 
   public static function getData($stat_nid, $options = array()) {
 
-    $q = 'SELECT * FROM {clarity_value_float} WHERE stat_nid = :stat';
+    $q = 'SELECT * FROM {clarity_value_float} f
+          INNER JOIN {assignment} as a ON f.assignment_id = a.aid
+          WHERE a.sid = :stat';
     $args = array(':stat' => $stat_nid);
 
     if (isset($options['uid'])) {
-      $q .= ' AND uid = :uid';
+      $q .= ' AND a.uid = :uid';
       $args[':uid'] = $options['uid'];
     }
 
     $result = db_query($q, $args);
     $data = array();
     foreach($result as $record) {
-      $d = new Data($record->uid, $record->timestamp, $record->value);
+      $d = new Data($record->uid, $record->expire_date, $record->value);
       $d->modified_time = $record->modified_time;
-      $d->category = $record->category;
-      $d->annotation = $record->annotation;
       $data[] = $d;
     }
 

@@ -202,6 +202,13 @@ function clarity_datasources_submit_data_form_submit($form, &$form_state) {
 }
 
 
+/**
+ * Add a datasource to the index.
+ * @param string $module The name of the module responsible for the datasource
+ * @param string $class  The class name for the datasource
+ * @param string $label  The human-readable label for the datasource
+ * @param array $data    An array of data to be stored in the index
+ */
 function clarity_datasources_create_datasource($module, $class, $label, $data = null) {
 
   if (!module_exists($module)) {
@@ -262,6 +269,10 @@ function clarity_datasources_remove_datasource($class) {
 }
 
 
+/**
+ * A callback to display the data for a statistic
+ * @param unknown_type $stat
+ */
 function clarity_datasources_display_stat_data($stat) {
 
   if ($stat->type != 'statistic') return t('No data');
@@ -281,6 +292,9 @@ function clarity_datasources_display_stat_data($stat) {
  * Database interface                                                        *
  *****************************************************************************/
 
+/**
+ * Returns a list of all datasources
+ */
 function _clarity_datasources_get_datasources() {
 
   $results = db_query('SELECT * FROM {clarity_datasource}');
@@ -295,17 +309,26 @@ function _clarity_datasources_get_datasources() {
 }
 
 
-function _clarity_datasources_get_datasource($dsid) {
+/**
+ * Returns the datasource with the given id.
+ * @param uint $dsid A datasource id
+ */
+function _clarity_datasources_get_datasource($ds_id) {
 
-  if (!is_numeric($dsid)) return null;
+  if (!is_numeric($ds_id)) return null;
 
-  $results = db_query("SELECT * FROM {clarity_datasource} WHERE dsid = $dsid");
+  $results = db_query("SELECT * FROM {clarity_datasource} WHERE dsid = $ds_id");
   if (empty($results)) return null;
   foreach ($results as $result) return $result;
 
 }
 
 
+/**
+ * Returns the datasource for the given stat
+ * TODO: handle multiple datasources per stat
+ * @param uint $stat_id The stat id
+ */
 function _clarity_datasources_get_datasource_for_stat($stat_id) {
 
   $stat = node_load($stat_id);
