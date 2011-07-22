@@ -4,7 +4,6 @@ dependencies[] = "list"
 description = "Used to manage unique statistic types"
 features[field][] = "node-statistic-body"
 features[field][] = "node-statistic-field_expiration_interval"
-features[field][] = "node-statistic-field_unit"
 features[node][] = "statistic"
 name = "Statistic Management"
 package = Clarity
