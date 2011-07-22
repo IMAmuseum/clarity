@@ -12,7 +12,12 @@ function clarity_datasources_field_schema($field) {
         'unsigned' => TRUE,
         'default'  => 0,
       ),
-    ),    
+      'label' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => false,        
+      ),
+    ),
   );
 
 }

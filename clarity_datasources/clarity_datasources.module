@@ -535,6 +535,14 @@ function clarity_datasources_field_widget_form(&$form, &$form_state, $field,
   $opts[null] = t('None');
 
   $element += array('#type' => 'fieldset');
+
+  $element['label'] = array(
+    '#title' => t('Label'),
+    '#type' => 'textfield',
+    '#size' => 20,
+    '#default_value' => isset($item['label']) ? $item['label'] : null
+  );
+
   $element['dsid'] = array(
     '#title' => t('Datasource'),
     '#type' => 'select',
