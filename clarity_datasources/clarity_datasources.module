@@ -132,18 +132,42 @@ function clarity_datasources_submit_data_form($form, &$form_state, $assignment_i
 
 
 function clarity_datasources_stat_config_form($form, &$form_state, $stat) {
-  $ds_info = _clarity_datasources_get_datasource_for_stat($stat->nid);
-  $form['datasource'] = array (
+
+  $ds_info = _clarity_datasources_get_datasources_for_stat($stat->nid);
+
+  $form['stat_nid'] = array (
+    '#type' => 'value',
+    '#value' => $stat->nid
+  );
+
+  $form['datasources'] = array (
     '#type' => 'value',
     '#value' => $ds_info
   );
 
-  $ds = new $ds_info->class;
+  foreach($ds_info as $delta => $info) {
 
-  if ($ds instanceof DatasourceStatIfc) {
+    $ds = new $info->class;
 
-    $form['data_fields'] = $ds->getStatConfigFormFields($stat);
-    $form['data_fields']['#type'] = 'fieldset';
+    if ($ds instanceof DatasourceStatIfc) {
+
+      $result = db_select('clarity_datasource_stat_config', 'c')
+        ->fields('c')
+        ->condition('stat_id', $stat->nid, '=')
+        ->condition('delta', $delta)
+        ->execute()->fetchAssoc();
+      $config = unserialize($result['config']);
+
+      $form["datasource-$delta"] = $ds->getStatConfigFormFields($stat);
+      $form["datasource-$delta"]['#type'] = 'fieldset';
+      $form["datasource-$delta"]['#title'] = $info->label;
+      $form["datasource-$delta"]['#tree'] = true;
+
+      foreach($config as $key => $val) {
+        $form["datasource-$delta"][$key]['#default_value'] = $val;
+      }
+
+    }
 
   }
 
@@ -159,14 +183,44 @@ function clarity_datasources_stat_config_form($form, &$form_state, $stat) {
 
 function clarity_datasources_stat_config_form_validate($form, &$form_state) {
 
-  $ds = new $form['datasource']['#value']->class;
-  if ($ds instanceof DatasourceStatIfc) {
-    $ds->validateStatConfigForm($form, $form_state);
+  $validated_classes = array();
+  foreach($form['datasources']['#value'] as $delta => $info) {
+
+    if (in_array($info->class, $validated_classes)) continue;
+
+    $ds = new $info->class;
+    if ($ds instanceof DatasourceStatIfc) {
+      $ds->validateStatConfigForm($form, $form_state);
+    }
+    unset($ds);
+    $validated_classes[] = $info->class;
+
   }
-  unset($ds);
 
 }
 
+function clarity_datasources_stat_config_form_submit($form, &$form_state) {
+
+  db_delete('clarity_datasource_stat_config')->condition('stat_id', $form['stat_nid']['#value'])->execute();
+
+  foreach($form['datasources']['#value'] as $delta => $info) {
+
+    $config = array();
+    foreach($form_state['complete form']["datasource-$delta"] as $key => $val) {
+      if ($key[0] != '#') {
+        $config[$key] = $val['#value'];
+      }
+    }
+
+    db_insert('clarity_datasource_stat_config')->fields(array(
+      'stat_id' => $form['stat_nid']['#value'],
+      'delta' => $delta,
+      'config' => serialize($config)
+    ))->execute();
+
+  }
+
+}
 
 /**
  * Form validation for the submit_data form
@@ -337,6 +391,20 @@ function _clarity_datasources_get_datasource_for_stat($stat_id) {
 
 }
 
+function _clarity_datasources_get_datasources_for_stat($stat_id) {
+
+  $stat = node_load($stat_id);
+  if (!isset($stat->field_datasources) || !count($stat->field_datasources)) return array();
+
+  $result = array();
+  foreach ($stat->field_datasources['und'] as $delta => $item) {
+    $result[$delta] = _clarity_datasources_get_datasource($item['dsid']);
+  }
+
+  return $result;
+
+}
+
 
 /*****************************************************************************
  * Assignment Hooks                                                          *
@@ -443,6 +511,50 @@ function clarity_datasources_field_info() {
 }
 
 
+function clarity_datasources_field_widget_info() {
+
+  return array(
+      'clarity_datasource_widget' => array(
+          'label' => t('Datasource widget'),
+          'field types' => array('clarity_datasource_reference'),
+      ),
+  );
+
+}
+
+
+function clarity_datasources_field_widget_form(&$form, &$form_state, $field,
+                                               $instance, $langcode, $items, $delta, $element) {
+
+  $field_name = $instance['field_name'];
+  $fieldset_info = element_info('fieldset');
+  $required = $element['#required'];
+  $item =& $items[$delta];
+
+  $opts = clarity_datasources_options_list($field);
+  $opts[null] = t('None');
+
+  $element += array('#type' => 'fieldset');
+  $element['dsid'] = array(
+    '#title' => t('Datasource'),
+    '#type' => 'select',
+    '#options' => $opts,
+    '#default_value' => isset($item['dsid']) ? $item['dsid'] : null
+  );
+
+  return $element;
+
+}
+
+
+function clarity_datasources_field_validate($entity_type, $entity, $field,
+                                            $instance, $langcode, $items, &$errors) {
+
+  // TODO: If the number of datasources has changed, warn that the data will be blown away
+
+}
+
+
 function clarity_datasources_field_formatter_info() {
 
   return array(
@@ -503,6 +615,7 @@ function clarity_datasources_field_widget_error($element, $error, $form, &$form_
 
 
 function clarity_datasources_field_is_empty($item, $field) {
+  if ($item['dsid'] == null) return true;
   return false;
 }
 

@@ -54,10 +54,10 @@ class ClarityFloatDatasource implements DatasourceIfc, DatasourceAssignmentIfc, 
 
   public static function getStatConfigFormFields($stat) {
 
-    $fields['single-value'] = array(
+    $fields['unit'] = array(
       '#type' => 'textfield',
-      '#title' => t('test'),
-      '#description' => 'foo',
+      '#title' => t('Unit'),
+      '#description' => 'The unit of measure for this value',
       '#required' => true
     );
 

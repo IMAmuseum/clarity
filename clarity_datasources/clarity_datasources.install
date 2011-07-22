@@ -61,6 +61,30 @@ function clarity_datasources_schema() {
       'name' => array('module','class')
     )
   );  
+    
+  $schema['clarity_datasource_stat_config'] = array(
+    'description' => 'Table for per-stat datasource configuration',
+    'fields' => array(
+      'stat_id' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE
+      ),
+      'delta' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE
+      ),
+      'config' => array(
+        'type' => 'text',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+        'description' => 'Serialized configuration'
+      ),
+    ),
+    'primary key' => array('stat_id', 'delta')  
+  );
   
   $schema['assignment_terms'] = array(
     'description' => 'Table for assignment terms.',
