@@ -160,7 +160,13 @@ function clarity_datasources_stat_config_form($form, &$form_state, $stat) {
 
       $form["datasource-$delta"] = $ds->getStatConfigFormFields($stat);
       $form["datasource-$delta"]['#type'] = 'fieldset';
-      $form["datasource-$delta"]['#title'] = $info->label;
+
+      $form["datasource-$delta"]['#title'] = '';
+      if (isset($stat->field_datasources['und'][$delta]['label'])) {
+        $form["datasource-$delta"]['#title'] .= $stat->field_datasources['und'][$delta]['label'] . ' - ';
+      }
+      $form["datasource-$delta"]['#title'] .= $info->label;
+
       $form["datasource-$delta"]['#tree'] = true;
 
       foreach($config as $key => $val) {
@@ -582,12 +588,16 @@ function clarity_datasources_field_formatter_view($entity_type, $entity, $field,
   switch($display['type']) {
     case 'clarity_datasource_formatter':
       foreach($items as $delta => $item) {
-        if ($item['dsid']) {
+        if (isset($item['dsid'])) {
           $ds = _clarity_datasources_get_datasource($item['dsid']);
           if (is_null($ds)) {
             $element[$delta]['#markup'] = '<span>' . t('None') . '</span>';
           } else {
-            $element[$delta]['#markup'] = '<span>' . $ds->label . '</span>';
+            $element[$delta]['#markup'] = '';
+            if(isset($item['label'])) {
+              $element[$delta]['#markup'] = '<span>' . $item['label'] . '</span> - ';
+            }
+            $element[$delta]['#markup'] .= '<span>' . $ds->label . '</span>';
           }
         }
       }
