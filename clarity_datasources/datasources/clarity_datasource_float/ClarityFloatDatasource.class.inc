@@ -1,14 +1,14 @@
 <?php
 
-class ClarityFloatDatasource implements DatasourceIfc, DatasourceAssignmentIfc, DatasourceStatIfc {
+class ClarityFloatDatasource implements DatasourceIfc, DatasourceStatIfc {
 
 
-  public static function getDataFormFields($stat) {
+  public static function getDataFormFields($stat, $delta) {
 
     $fields['single-value'] = array(
       '#type' => 'textfield',
       '#title' => t('Value'),
-      '#description' => $stat->field_unit['und'][0]['value'],
+      '#description' => $stat->field_datasources['und'][$delta]['config']['unit'],
       '#required' => true
     );
 
@@ -16,26 +16,39 @@ class ClarityFloatDatasource implements DatasourceIfc, DatasourceAssignmentIfc, 
 
   }
 
-
+  // DEPRECATED
   public static function validateDataForm($form, $form_state) {
 
-    if (!is_numeric($form_state['values']['single-value'])) {
-      form_set_error('single-value', t('Please enter a numeric value'));
+    foreach($form_state['values']['datasources'] as $delta => $ds_fieldset) {
+
+      if (!is_numeric($ds_fieldset['data_fields']['single-value'])) {
+        form_set_error("datasources][$delta][data_fields][single-value", t('Please enter a numeric value'));
+      }
+
     }
 
   }
 
 
-  public static function submitDataForm($form, $form_state) {
+  public static function validateDataFormFields($field_id_prefix, $field_values, $delta) {
+
+    if (!is_numeric($field_values['single-value'])) {
+        form_set_error($field_id_prefix . 'single-value', t('Please enter a numeric value'));
+    }
+
+  }
+
+
+  public static function submitDataFormFields($field_values, $assignment_id, $delta) {
 
     global $user;
 
     try {
 
       $result = db_insert('clarity_value_float')->fields(array(
-        'assignment_id'      => $form_state['values']['assignment']->aid,
-        'value'         => $form_state['values']['single-value'],
-        'modified_time' => time()
+        'assignment_id' => $assignment_id,
+        'value'         => $field_values['single-value'],
+        'delta'         => $delta
       ))->execute();
 
     } catch (PDOException $e) {

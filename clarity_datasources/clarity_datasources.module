@@ -109,24 +109,101 @@ function clarity_datasources_submit_data_form($form, &$form_state, $assignment_i
     '#value' => $assignment
   );
 
-  $ds_info = _clarity_datasources_get_datasource($stat->field_datasource['und'][0]['dsid']);
-  $form['datasource'] = array (
-    '#type' => 'value',
-    '#value' => $ds_info
-  );
+  $form['datasources'] = array('#tree' => 'true');
 
-  $ds = new $ds_info->class;
-  $form['data_fields'] = $ds->getDataFormFields($stat);
-  $form['data_fields']['#type'] = 'fieldset';
+  foreach ($stat->field_datasources['und'] as $delta => $ds) {
+
+    $ds_info = _clarity_datasources_get_datasource($ds['dsid']);
+
+    $form['datasources'][$delta] = array(
+      '#type' => 'fieldset',
+      '#tree' => 'true'
+    );
+
+    if (isset($ds['label'])) {
+      $form['datasources'][$delta]['#title'] = $ds['label'];
+    }
+
+    $form['datasources'][$delta]['info'] = array (
+      '#type' => 'value',
+      '#value' => $ds_info
+    );
+
+    $ds = new $ds_info->class;
+    $form['datasources'][$delta]['data_fields'] = $ds->getDataFormFields($stat, $delta);
+
+    unset($ds);
+
+  }
 
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => 'Submit'
   );
 
-  unset($ds);
 
   return $form;
+
+}
+
+
+/**
+ * Form validation for the submit_data form
+ * @param $form
+ * @param $form_state
+ */
+function clarity_datasources_submit_data_form_validate($form, &$form_state) {
+
+  $classes = array();
+
+  foreach($form_state['values']['datasources'] as $delta => $ds_fieldset) {
+
+    if (!isset($classes[$ds_fieldset['info']->class])) {
+      $classes[$ds_fieldset['info']->class] = new $ds_fieldset['info']->class;
+    }
+
+    $classes[$ds_fieldset['info']->class]->validateDataFormFields("datasources][$delta][data_fields][",
+                                                                  $ds_fieldset['data_fields'],
+                                                                  $delta);
+
+  }
+
+  foreach($classes as $class) {
+    unset($ds);
+  }
+
+}
+
+
+/**
+ * Form submission for the submit_data form
+ * @param unknown_type $form
+ * @param unknown_type $form_state
+ */
+function clarity_datasources_submit_data_form_submit($form, &$form_state) {
+
+  $classes = array();
+
+  foreach($form_state['values']['datasources'] as $delta => $ds_fieldset) {
+
+    if (!isset($classes[$ds_fieldset['info']->class])) {
+      $classes[$ds_fieldset['info']->class] = new $ds_fieldset['info']->class;
+    }
+
+    $classes[$ds_fieldset['info']->class]->submitDataFormFields($ds_fieldset['data_fields'],
+                                                                $form_state['values']['assignment']->aid,
+                                                                $delta);
+
+  }
+
+  foreach($classes as $class) {
+    unset($ds);
+  }
+
+  // Tell the assignment module that this assignment is complete
+  module_invoke('assignment', 'data_submitted', $form_state['values']['assignment']->aid);
+  global $user;
+  $form_state['redirect'] = "user/{$user->uid}/assignments";
 
 }
 
@@ -225,39 +302,6 @@ function clarity_datasources_stat_config_form_submit($form, &$form_state) {
     ))->execute();
 
   }
-
-}
-
-/**
- * Form validation for the submit_data form
- * @param $form
- * @param $form_state
- */
-function clarity_datasources_submit_data_form_validate($form, &$form_state) {
-
-  $ds = new $form['datasource']['#value']->class;
-  $ds->validateDataForm($form, $form_state);
-  unset($ds);
-
-}
-
-
-/**
- * Form submission for the submit_data form
- * @param unknown_type $form
- * @param unknown_type $form_state
- */
-function clarity_datasources_submit_data_form_submit($form, &$form_state) {
-
-  // Pass form values to the appropriate datasource
-  $ds = new $form['datasource']['#value']->class;
-  $ds->submitDataForm($form, $form_state);
-  unset($ds);
-
-  // Tell the assignment module that this assignment is complete
-  module_invoke('assignment', 'data_submitted', $form_state['values']['assignment']->aid);
-  global $user;
-  $form_state['redirect'] = "user/{$user->uid}/assignments";
 
 }
 
@@ -421,14 +465,16 @@ function clarity_datasources_form_alter(&$form, &$form_state, $form_id) {
 
   if (substr($form_id, 0, 15) == 'assignment_form') {
 
-    $ds_info = _clarity_datasources_get_datasource_for_stat($form['sid']['#value']);
-    $ds = new $ds_info->class;
-
-    if ($ds instanceof DatasourceAssignmentIfc) {
-      $ds->assignmentFormFields($form, $form_state, $form_id);
+    $datasources = _clarity_datasources_get_datasources_for_stat($form['sid']['#value']);
+    $ds_objs = array();
+    foreach ($datasources as $delta => $ds_info) {
+      if (!isset($ds_objs[$ds_info->class])) $ds_objs[$ds_info->class] = new $ds_info->class;
+      if ($ds_objs[$ds_info->class] instanceof DatasourceAssignmentIfc) {
+        $ds->assignmentFormFields($form, $form_state, $form_id);
+      }
     }
 
-    unset($ds);
+    foreach ($ds_objs as $obj) unset($obj);
 
   }
 
@@ -437,22 +483,49 @@ function clarity_datasources_form_alter(&$form, &$form_state, $form_id) {
 
 function clarity_datasources_entity_load($entities, $type) {
 
-  if ($type != 'assignment') return;
+  switch($type) {
 
-  // Sort so that we can make one call per datasource
-  $ds_sorted = array();
-  foreach ($entities as $assignment) {
-    $ds_info = _clarity_datasources_get_datasource_for_stat($assignment->sid);
-    $ds_sorted[$ds_info->class][] = $assignment;
-  }
+    case 'assignment':
 
-  foreach($ds_sorted as $class => $entities) {
+      // Sort so that we can make one call per datasource
+      $ds_sorted = array();
+      $ds_aids = array();
+      foreach ($entities as $assignment) {
+        $datasources = _clarity_datasources_get_datasources_for_stat($assignment->sid);
+        foreach ($datasources as $ds_info) {
+          if (isset($ds_aids[$ds_info->class]) && in_array($assignment->aid, $ds_aids[$ds_info->class])) continue;
+          $ds_aids[$ds_info->class][] = $assignment->aid;
+          $ds_sorted[$ds_info->class][] = $assignment;
+        }
+      }
 
-    $ds = new $class;
-    if ($ds instanceof DatasourceAssignmentIfc) {
-      $ds->onAssignmentLoad($entities);
-    }
-    unset($ds);
+      foreach($ds_sorted as $class => $entities) {
+
+        $ds = new $class;
+        if ($ds instanceof DatasourceAssignmentIfc) {
+          $ds->onAssignmentLoad($entities);
+        }
+        unset($ds);
+
+      }
+
+      break;
+
+    case 'node':
+
+      foreach ($entities as $node) {
+        if ($node->type != 'statistic') continue;
+        foreach ($node->field_datasources['und'] as $delta => &$item) {
+          $result = db_select('clarity_datasource_stat_config', 'c')
+            ->fields('c')
+            ->condition('stat_id', $node->nid, '=')
+            ->condition('delta', $delta)
+            ->execute()->fetchAssoc();
+          $item['config'] = unserialize($result['config']);
+        }
+      }
+
+      break;
 
   }
 
@@ -463,39 +536,48 @@ function clarity_datasources_entity_presave($entity, $type) {
 
   if ($type != 'assignment') return;
 
-  $ds_info = _clarity_datasources_get_datasource_for_stat($entity->sid);
-  $ds = new $ds_info->class;
-  if ($ds instanceof DatasourceAssignmentIfc) {
-    $ds->onAssignmentPresave($entity);
+  $datasources = _clarity_datasources_get_datasources_for_stat($entity->sid);
+  $ds_objs = array();
+  foreach ($datasources as $delta => $ds_info) {
+    if (!isset($ds_objs[$ds_info->class])) $ds_objs[$ds_info->class] = new $ds_info->class;
+    if ($ds_objs[$ds_info->class] instanceof DatasourceAssignmentIfc) {
+      $ds->onAssignmentPresave($entity);
+    }
   }
 
-  unset($ds);
+  foreach ($ds_objs as $obj) unset($obj);
 
 }
 
 
 function clarity_datasources_assignment_update($assignment) {
 
-  $ds_info = _clarity_datasources_get_datasource_for_stat($assignment->sid);
-  $ds = new $ds_info->class;
-  if ($ds instanceof DatasourceAssignmentIfc) {
-    $ds->onAssignmentUpdate($assignment);
+  $datasources = _clarity_datasources_get_datasources_for_stat($assignment->sid);
+  $ds_objs = array();
+  foreach ($datasources as $delta => $ds_info) {
+    if (!isset($ds_objs[$ds_info->class])) $ds_objs[$ds_info->class] = new $ds_info->class;
+    if ($ds_objs[$ds_info->class] instanceof DatasourceAssignmentIfc) {
+      $ds->onAssignmentUpdate($assignment);
+    }
   }
 
-  unset($ds);
+  foreach ($ds_objs as $obj) unset($obj);
 
 }
 
 
 function clarity_datasources_assignment_insert($assignment) {
 
-  $ds_info = _clarity_datasources_get_datasource_for_stat($assignment->sid);
-  $ds = new $ds_info->class;
-  if ($ds instanceof DatasourceAssignmentIfc) {
-    $ds->onAssignmentInsert($assignment);
+  $datasources = _clarity_datasources_get_datasources_for_stat($assignment->sid);
+  $ds_objs = array();
+  foreach ($datasources as $delta => $ds_info) {
+    if (!isset($ds_objs[$ds_info->class])) $ds_objs[$ds_info->class] = new $ds_info->class;
+    if ($ds_objs[$ds_info->class] instanceof DatasourceAssignmentIfc) {
+      $ds->onAssignmentInsert($assignment);
+    }
   }
 
-  unset($ds);
+  foreach ($ds_objs as $obj) unset($obj);
 
 }
 

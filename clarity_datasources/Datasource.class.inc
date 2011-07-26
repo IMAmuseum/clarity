@@ -5,20 +5,23 @@
  */
 interface DatasourceIfc {
 
+
   /**
    * A function to get fields for the data entry form.
    */
-  static function getDataFormFields($stat);
+  static function getDataFormFields($stat, $delta);
 
   /**
-   * A function to validate the data entry form.
+   * A function to validate data entry form fields.
    */
-  static function validateDataForm($form, $form_state);
+  static function validateDataFormFields($fieldset_id_prefix, $field_values, $delta);
 
   /**
-   * A function to submit data from the data entry form.
+   * A function to submit data entry form field values.
    */
-  static function submitDataForm($form, $form_state);
+  static function submitDataFormFields($field_values, $assignment_id, $delta);
+
+
 
   /**
    * A function to fetch all data for a stat

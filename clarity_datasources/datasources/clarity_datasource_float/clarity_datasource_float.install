@@ -25,25 +25,26 @@ function clarity_datasource_float_schema() {
         'not null' => true,
         'description' => 'The assignment corresponding to this value'
       ),
+      'delta' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => true,
+        'not null' => true,
+        'description' => 'The index of the datasource on the stat'      
+      ),
       'value' => array(
         'type' => 'float',
         'not null' => false,
         'default' => NULL,
         'description' => 'The value'
-      ),
-      'modified_time' => array(
-        'type' => 'int',
-        'unsigned' => true,
-        'not null' => true,
-        'description' => 'The last time this value was modified'      
-      )      
+      )
     ),
     'indexes' => array(
     ),
     'foreign keys' => array(
       'assignment_id' => array('assignment' => 'aid'),
     ),
-    'primary key' => array('assignment_id')      
+    'primary key' => array('assignment_id', 'delta')      
   );
 
   return $schema; 
