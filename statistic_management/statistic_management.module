@@ -9,6 +9,7 @@
  */
 function statistic_management_form_alter(&$form, &$form_state, $form_id) {
 
+  /*
 	if($form_id == 'statistic_node_form') {
    		$vocabularies = taxonomy_get_vocabularies();
 
@@ -23,6 +24,7 @@ function statistic_management_form_alter(&$form, &$form_state, $form_id) {
   		}
   		return $form;
   	}
+ 	*/
 }
 
 include_once('statistic_management.features.inc');
