@@ -223,7 +223,7 @@
 
 		$form['expire_date'] = array(
 			'#type'				=> 'textfield',
-			'#title'			=> 'Experation Date',
+			'#title'			=> 'Expiration Date',
 			'#description'			=> t('Date assignment will expire.'),
 			'#default_value'	=> $default->expire_date,
 			'#required'			=> TRUE
@@ -346,7 +346,7 @@
 	function assignment_form_edit($form, &$form_state, $assignment = NULL) {
 		$form['expire_date'] = array(
 			'#type'				=> 'textfield',
-			'#title'			=> 'Experation Date',
+			'#title'			=> 'Expiration Date',
 			'#default_value'	=> date('m/d/Y', $assignment->expire_date),
 			'#required'			=> TRUE
 		);
