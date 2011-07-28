@@ -41,26 +41,10 @@ class ClarityFloatDatasource implements DatasourceIfc, DatasourceStatIfc {
 
   public static function submitDataFormFields($field_values, $assignment_id, $delta) {
 
-    global $user;
-
-    try {
-
-      $result = db_insert('clarity_value_float')->fields(array(
-        'assignment_id' => $assignment_id,
-        'value'         => $field_values['single-value'],
-        'delta'         => $delta
-      ))->execute();
-
-    } catch (PDOException $e) {
-
-      watchdog_exception('data_submission', $e);
-      if (($e->errorInfo[0] == 23000) && $e->errorInfo[1] == 1062) {
-        drupal_set_message(t('An entry for this assignment already exists'), 'warning');
-      } else {
-        drupal_set_message(t('The system was unable to record this value'), 'warning');
-      }
-
-    }
+    db_query('REPLACE INTO {clarity_value_float} (assignment_id, value, delta) VALUES (:aid, :val, :delta)',
+             array(':aid' => $assignment_id,
+                   ':val' => $field_values['single-value'],
+                   ':delta' => $delta));
 
   }
 

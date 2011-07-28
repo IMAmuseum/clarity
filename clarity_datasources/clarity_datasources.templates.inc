@@ -72,7 +72,7 @@ function clarity_datasources_preprocess_stat_data_table_row(&$vars) {
 
   $vars['columns']['assignment_edit'] = array(
     'classes' => 'w1',
-    'content' => 'Edit'
+    'content' => l('Edit', 'submit-data/' . $vars['assignment']->aid)
   );
 
 
@@ -84,7 +84,5 @@ function clarity_datasources_preprocess_stat_data_table_row(&$vars) {
       );
     }
   }
-
-
 
 }
