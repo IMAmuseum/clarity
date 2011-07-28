@@ -14,7 +14,7 @@
 
 .stat-data-table .row .column {
   float: left;
-  padding-left: 4px;
+  text-align: center;
 }
 
 .stat-data-table .row {

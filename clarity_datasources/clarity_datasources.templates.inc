@@ -55,18 +55,23 @@ function clarity_datasources_preprocess_stat_data_table_row(&$vars) {
 
   $vars['columns'] = array();
 
+  $vars['columns']['assignment_user'] = array(
+    'classes' => 'w1',
+    'content' => l(user_load($vars['assignment']->uid)->name, 'user/'. $vars['assignment']->uid)
+  );
+
   $vars['columns']['assignment_date'] = array(
-    'classes' => '',
+    'classes' => 'w2',
     'content' => date('m/d/Y', $vars['assignment']->expire_date),
   );
 
   $vars['columns']['assignment_modified'] = array(
-    'classes' => '',
+    'classes' => 'w2',
     'content' => isset($vars['assignment']->modified_date) ? date('m/d/Y', $vars['assignment']->modified_date) : '&nbsp;',
   );
 
   $vars['columns']['assignment_edit'] = array(
-    'classes' => '',
+    'classes' => 'w1',
     'content' => 'Edit'
   );
 
@@ -74,7 +79,7 @@ function clarity_datasources_preprocess_stat_data_table_row(&$vars) {
   foreach ($vars['ds_column_content'] as $delta => $column) {
     foreach($column as $subcolumn) {
       $vars['columns']['ds-' . $delta] = array(
-        'classes' => '',
+        'classes' => 'w2',
         'content' => isset($subcolumn) ? $subcolumn : '&nbsp'
       );
     }
