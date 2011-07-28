@@ -88,6 +88,40 @@ function clarity_datasources_page() {
 
 
 /**
+ * Implementation of hook_theme
+ */
+function clarity_datasources_theme() {
+
+  return array(
+    'stat_data_table' => array(
+      'template' => 'stat_data_table',
+      'file' => 'clarity_datasources.templates.inc',
+      'arguments' => array(
+        'stat_nid' => null,
+        'options' => array()
+      )
+    ),
+    'stat_data_table_header' => array(
+      'template' => 'stat_data_table_header',
+      'file' => 'clarity_datasources.templates.inc',
+      'arguments' => array(
+        'ds_header_labels' => array()
+      )
+    ),
+    'stat_data_table_row' => array(
+      'template' => 'stat_data_table_row',
+      'file' => 'clarity_datasources.templates.inc',
+      'arguments' => array(
+        'assignment' => null,
+        'ds_column_content' => array()
+      )
+    )
+  );
+
+}
+
+
+/**
  * Render the data submission form for the given assignment. Invokes
  * a form render via the datasource for the associated statistic.
  * @param unknown_type $form
@@ -375,19 +409,23 @@ function clarity_datasources_remove_datasource($class) {
 
 /**
  * A callback to display the data for a statistic
- * @param unknown_type $stat
+ * @param node $stat
  */
 function clarity_datasources_display_stat_data($stat) {
 
   if ($stat->type != 'statistic') return t('No data');
 
+  /*
   $ds_info = _clarity_datasources_get_datasource_for_stat($stat->nid);
   if (!isset($ds_info)) {
     return t('No datasource assigned');
   }
   $data_table = call_user_func($ds_info->class . '::createDataTable', $stat->nid);
+  */
 
-  return $data_table;
+  drupal_add_css(drupal_get_path('module', 'clarity_datasources') . '/clarity_datasources.css');
+
+  return theme('stat_data_table', array('stat_nid' => $stat->nid));
 
 }
 
@@ -441,14 +479,19 @@ function _clarity_datasources_get_datasource_for_stat($stat_id) {
 
 }
 
-function _clarity_datasources_get_datasources_for_stat($stat_id) {
+function _clarity_datasources_get_datasources_for_stat($stat_id, $objects = false) {
 
   $stat = node_load($stat_id);
   if (!isset($stat->field_datasources) || !count($stat->field_datasources)) return array();
 
   $result = array();
   foreach ($stat->field_datasources['und'] as $delta => $item) {
-    $result[$delta] = _clarity_datasources_get_datasource($item['dsid']);
+    if ($objects) {
+      $result[$delta]['info'] = _clarity_datasources_get_datasource($item['dsid']);
+      $result[$delta]['object'] = new $result[$delta]['info']->class;
+    } else {
+      $result[$delta] = _clarity_datasources_get_datasource($item['dsid']);
+    }
   }
 
   return $result;

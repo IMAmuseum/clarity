@@ -35,7 +35,19 @@ interface DatasourceIfc {
    */
   static function createDataTable($stat_id);
 
+  /**
+   * Returns an associative array of content for the data table
+   * @param unknown_type $stat_nid
+   * @param unknown_type $delta
+   * @param unknown_type $options
+   */
+  static function getDataTableHeaderInfo($stat_id, $delta);
+
+
+  static function getDataTableColumnContent($stat_nid, $delta, $options = array());
+
 }
+
 
 interface DatasourceStatIfc {
 

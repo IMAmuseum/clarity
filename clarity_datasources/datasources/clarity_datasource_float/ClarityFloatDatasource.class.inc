@@ -80,7 +80,6 @@ class ClarityFloatDatasource implements DatasourceIfc, DatasourceStatIfc {
 
   public static function validateStatConfigForm($stat) {
 
-
   }
 
   public static function getData($stat_nid, $options = array()) {
@@ -114,6 +113,34 @@ class ClarityFloatDatasource implements DatasourceIfc, DatasourceStatIfc {
 
     return theme('clarity_float_table', array('data' => $data));
 
+
+  }
+
+
+  public static function getDataTableHeaderInfo($stat_nid, $delta) {
+
+    $stat = node_load($stat_nid);
+    return array('(' . $stat->field_datasources['und'][$delta]['config']['unit'] . ')');
+
+  }
+
+
+  public static function getDataTableColumnContent($stat_nid, $delta, $options = array()) {
+
+    $query = db_select('clarity_value_float', 'v');
+    $query->join('assignment', 'a', 'v.assignment_id = a.aid');
+
+    $results = $query->fields('v')
+                     ->condition('sid', $stat_nid, '=')
+                     ->condition('delta', $delta)
+                     ->execute();
+
+    $content = array();
+    while($result = $results->fetchAssoc()) {
+      $content[$result['assignment_id']] = $result['value'];
+    }
+
+    return $content;
 
   }
 
