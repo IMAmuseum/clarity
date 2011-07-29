@@ -5,34 +5,7 @@
  */
 
 
-function clarity_datasource_float_theme() {
 
-  return array(
-    'clarity_float_table' => array(
-      'template' => 'clarity_float_table',
-      'arguments' => array(
-        'data' => array()
-      )
-    ),
-    'clarity_float_table_row' => array(
-      'template' => 'clarity_float_table_row',
-      'arguments' => array(
-        'data' => null
-      )
-    ),
-
-  );
-
-}
-
-function clarity_datasource_float_preprocess_clarity_float_table(&$vars) {
-
-  $vars['row_content'] = '';
-  foreach($vars['data'] as $data) {
-    $vars['row_content'] .= theme('clarity_float_table_row', array('data' => $data));
-  }
-
-}
 
 
 

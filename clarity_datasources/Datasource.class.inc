@@ -8,6 +8,7 @@ interface DatasourceIfc {
 
   /**
    * A function to get fields for the data entry form.
+   * @return An array of fields
    */
   static function getDataFormFields($stat, $delta);
 
@@ -26,37 +27,47 @@ interface DatasourceIfc {
   /**
    * A function to fetch all data for a stat
    * Returns an array of Data objects
+   * @todo Operate on deltas
    */
   static function getData($stat_id, $options = array());
 
-  /**
-   * A function to create the data table for a stat
-   * Returns the content for the data table
-   */
-  static function createDataTable($stat_id);
+
 
   /**
-   * Returns an associative array of content for the data table
-   * @param unknown_type $stat_nid
-   * @param unknown_type $delta
-   * @param unknown_type $options
+   * A function to fetch info for the data table header
+   * @return An array of header sub-labels
    */
   static function getDataTableHeaderInfo($stat_id, $delta);
 
-
+  /**
+   * A function to fetch data table content
+   * @param array $options (TBD)
+   * @return An array of the form: array(assignment_id => content)
+   */
   static function getDataTableColumnContent($stat_nid, $delta, $options = array());
 
 }
 
 
+/**
+ * Datasources which allow configuration for individual stats should implement this interface
+ */
 interface DatasourceStatIfc {
 
+  /**
+   * A function to get fields for the datasource config form for a stat
+   * @return An array of fields
+   */
   public static function getStatConfigFormFields($stat);
+
   public static function validateStatConfigForm($stat);
 
 }
 
 
+/**
+ * Datasources which add configuration options for assignments should implement this interface
+ */
 interface DatasourceAssignmentIfc {
 
   public static function assignmentFormFields(&$form, &$form_state, $form_id);

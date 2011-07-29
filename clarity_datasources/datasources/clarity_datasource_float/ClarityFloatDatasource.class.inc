@@ -91,16 +91,6 @@ class ClarityFloatDatasource implements DatasourceIfc, DatasourceStatIfc {
   }
 
 
-  public static function createDataTable($stat_nid) {
-
-    $data = ClarityFloatDatasource::getData($stat_nid);
-
-    return theme('clarity_float_table', array('data' => $data));
-
-
-  }
-
-
   public static function getDataTableHeaderInfo($stat_nid, $delta) {
 
     $stat = node_load($stat_nid);
