@@ -12,12 +12,16 @@ function clarity_charts_node_view($node, $view_mode, $langcode) {
     drupal_add_js("https://www.google.com/jsapi");
     drupal_add_js(drupal_get_path('module', 'clarity_charts') . '/clarity_charts.js');
 
-    $node->content['chart'] = array(
-      '#markup' => "<div id='main-chart'>chart</div>",
-      '#weight' => -10
-    );
+    foreach($node->field_datasources['und'] as $delta => $datasource) {
 
-    drupal_add_js("clarity_charts.push(new ClarityChart('main-chart', 'line'));", 'inline');
+      $node->content["chart-$delta"] = array(
+        '#markup' => "<div id='chart-$delta'>chart</div>",
+        '#weight' => -10
+      );
+
+      drupal_add_js("clarity_charts.push(new ClarityChart('chart-$delta', 'line', {$node->nid}, $delta));", 'inline');
+
+    }
 
   }
 

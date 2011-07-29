@@ -1,12 +1,14 @@
 
 var clarity_charts = [];
 
-function ClarityChart(element_id, chart_type) {		
+function ClarityChart(element_id, chart_type, stat_nid, delta) {		
 	
   var self = this;
   this.element_id = element_id;
   this.chart_type = chart_type;
   this.chart = null;
+  this.stat_nid = stat_nid;
+  this.delta = delta;
   
   this.init = function() {
 	
@@ -21,6 +23,24 @@ function ClarityChart(element_id, chart_type) {
   
   }	
 	
+  this.fetchData = function() {
+	  
+	var query = new google.visualization.Query(Drupal.settings.basePath + 'datasource/wire/' + self.stat_nid + '/' + self.delta);
+	query.send(self.handleWireResponse);	  
+	  
+  }
+  
+  this.handleWireResponse = function(response) {
+	  
+   if (response.isError()) {
+	 alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
+	 return;
+   }
+
+   self.draw(response.getDataTable());
+	  
+  }
+  
   this.draw = function(data) {
 	  
     if (this.chart != null) {
@@ -36,33 +56,14 @@ function ClarityChart(element_id, chart_type) {
 
   google.load('visualization', '1', {'packages':['corechart']});	
   
-  google.setOnLoadCallback(loadData);    
+  google.setOnLoadCallback(startCharting);    
 
-  function loadData() {
+  function startCharting() {
 	  
-	  // TODO: determine this in a better way
-	  var stat_nid = document.URL.split('/').pop();
-	  
-	  var query = new google.visualization.Query(Drupal.settings.basePath + 'datasource/wire/' + stat_nid + '/0');
-	  query.send(handleWireResponse);
-      for (i in clarity_charts) {
-    	  clarity_charts[i].init();
-      }
-	  
-  }
-  
-  function handleWireResponse(response) {
-
-    if (response.isError()) {
-      alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
-      return;
+    for (i in clarity_charts) {
+	  clarity_charts[i].init();
+	  clarity_charts[i].fetchData();
     }
-
-    var data = response.getDataTable();
-  
-    for (i in clarity_charts) {	       
-	  clarity_charts[i].draw(data);
-    }  
 	  
   }
 
