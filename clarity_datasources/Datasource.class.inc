@@ -10,7 +10,7 @@ interface DatasourceIfc {
    * A function to get fields for the data entry form.
    * @return An array of fields
    */
-  static function getDataFormFields($stat, $delta);
+  static function getDataFormFields($stat, $delta, $assignment_id = null);
 
   /**
    * A function to validate data entry form fields.

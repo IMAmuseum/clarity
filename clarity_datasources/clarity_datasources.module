@@ -164,7 +164,7 @@ function clarity_datasources_submit_data_form($form, &$form_state, $assignment_i
     );
 
     $ds = new $ds_info->class;
-    $form['datasources'][$delta]['data_fields'] = $ds->getDataFormFields($stat, $delta);
+    $form['datasources'][$delta]['data_fields'] = $ds->getDataFormFields($stat, $delta, $assignment_id);
 
     unset($ds);
 

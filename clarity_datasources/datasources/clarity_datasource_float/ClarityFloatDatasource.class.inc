@@ -3,13 +3,25 @@
 class ClarityFloatDatasource implements DatasourceIfc, DatasourceStatIfc {
 
 
-  public static function getDataFormFields($stat, $delta) {
+  public static function getDataFormFields($stat, $delta, $assignment_id = null) {
+
+    $result = db_select('clarity_value_float', 'f')
+              ->fields('f')
+              ->condition('assignment_id', $assignment_id, '=')
+              ->condition('delta', $delta, '=')
+              ->execute();
+
+    $default = null;
+    if ($record = $result->fetchAssoc()) {
+      $default = $record['value'];
+    }
 
     $fields['single-value'] = array(
       '#type' => 'textfield',
       '#title' => t('Value'),
       '#description' => $stat->field_datasources['und'][$delta]['config']['unit'],
-      '#required' => true
+      '#required' => true,
+      '#default_value' => $default
     );
 
     return $fields;
