@@ -4,7 +4,7 @@ function clarity_datasource_float_install() {
 
   clarity_datasources_create_datasource('clarity_datasource_float', 
                                         'ClarityFloatDatasource',
-                                        'Manual Single Value');
+                                        'Manual Single Number');
 
 }
 
