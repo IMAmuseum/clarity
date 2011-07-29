@@ -73,6 +73,11 @@ class ClarityFloatDatasource implements DatasourceIfc, DatasourceStatIfc {
           WHERE a.sid = :stat';
     $args = array(':stat' => $stat_nid);
 
+    if (isset($options['delta'])) {
+      $q .=  ' AND f.delta = :delta';
+      $args[':delta'] = $options['delta'];
+    }
+
     if (isset($options['uid'])) {
       $q .= ' AND a.uid = :uid';
       $args[':uid'] = $options['uid'];
@@ -81,9 +86,7 @@ class ClarityFloatDatasource implements DatasourceIfc, DatasourceStatIfc {
     $result = db_query($q, $args);
     $data = array();
     foreach($result as $record) {
-      $d = new Data($record->uid, $record->expire_date, $record->value);
-      $d->modified_time = $record->modified_time;
-      $data[] = $d;
+      $data[$record->assignment_id] = $record->value;
     }
 
     return $data;

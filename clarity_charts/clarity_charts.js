@@ -43,7 +43,7 @@ function ClarityChart(element_id, chart_type) {
 	  // TODO: determine this in a better way
 	  var stat_nid = document.URL.split('/').pop();
 	  
-	  var query = new google.visualization.Query(Drupal.settings.basePath + 'datasource/wire/' + stat_nid);
+	  var query = new google.visualization.Query(Drupal.settings.basePath + 'datasource/wire/' + stat_nid + '/0');
 	  query.send(handleWireResponse);
       for (i in clarity_charts) {
     	  clarity_charts[i].init();

@@ -1,6 +1,6 @@
 <?php
 
-function clarity_datasources_wire($stat) {
+function clarity_datasources_wire($stat, $delta = null) {
 
   $result = array('version' => '0.6');
 
@@ -37,11 +37,13 @@ function clarity_datasources_wire($stat) {
     print "Node {$params['reqId']} is not a statistic";
     exit();
   }
-  $ds_info = _clarity_datasources_get_datasource_for_stat($stat->nid);
+  $ds_info = _clarity_datasources_get_datasources_for_stat($stat->nid);
+  if (isset($delta)) $ds_info = $ds_info[$delta];
+
   if ($ds_info) {
-    $data = call_user_func($ds_info->class . '::getData', $stat->nid);
+    $ds_data = call_user_func($ds_info->class . '::getData', $stat->nid, array('delta' => $delta));
   } else {
-    $data = array();
+    $ds_data = array();
   }
 
   $table = array(
@@ -55,12 +57,27 @@ function clarity_datasources_wire($stat) {
       )
   );
 
+  $q = 'SELECT * FROM {assignment} a WHERE a.sid = :stat';
+  $args = array(':stat' => $stat->nid);
+
+  if (isset($uid)) {
+    $q .= ' AND a.uid = :uid';
+    $args[':uid'] = $uid;
+  }
+
+  $assignments = db_query($q, $args);
+
   $table['rows'] = array();
-  foreach ($data as $data_row) {
-      $table_row = array('c' => array());
-      $table_row['c'][] = array('v' => date('M j', $data_row->timestamp));
-      $table_row['c'][] = array('v' => intval($data_row->value));
-      $table['rows'][] = $table_row;
+  foreach ($assignments as $assignment) {
+    $table_row = array('c' => array());
+    $table_row['c'][] = array('v' => date('M j', $assignment->expire_date));
+    // TODO: why intval?
+    if (isset($ds_data[$assignment->aid])) {
+      $table_row['c'][] = array('v' => intval($ds_data[$assignment->aid]));
+    } else {
+      $table_row['c'][] = array('v' => null);
+    }
+    $table['rows'][] = $table_row;
   }
 
   $result['table'] = $table;
