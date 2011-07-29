@@ -27,7 +27,7 @@ interface DatasourceIfc {
    * A function to fetch all data for a stat
    * Returns an array of Data objects
    */
-  static function getData($stat_id, $options);
+  static function getData($stat_id, $options = array());
 
   /**
    * A function to create the data table for a stat
