@@ -288,7 +288,7 @@ $translatables['Assignments'] = array(
   t('Completed'),
   t('Page'),
 );
-  
+
   $export['Assignments'] = $view;
 
   $view = new view;
@@ -512,7 +512,7 @@ $translatables['Assignments'] = array(
 
   /* Display: Page */
   $handler = $view->new_display('page', 'Page', 'page');
-  $handler->display->display_options['path'] = 'user/%/assignments';
+  $handler->display->display_options['path'] = 'user/%/assignments-old';
   $handler->display->display_options['menu']['type'] = 'tab';
   $handler->display->display_options['menu']['title'] = 'Assignments';
   $handler->display->display_options['menu']['description'] = 'Statistic assignments';

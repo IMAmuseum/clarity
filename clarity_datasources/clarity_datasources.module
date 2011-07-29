@@ -32,8 +32,8 @@ function clarity_datasources_menu() {
   );
 
 
-  $items['node/%node/data'] = array(
-    'title'             => 'Statistic Data',
+  $items['node/%node/assignments'] = array(
+    'title'             => 'Assignments',
     'page callback'     => 'clarity_datasources_display_stat_data',
     'page arguments'    => array(1),
     'access callback'   => 'clarity_datasources_stat_data_access',
@@ -244,6 +244,7 @@ function clarity_datasources_submit_data_form_submit($form, &$form_state) {
     ->condition('aid', $form_state['values']['assignment']->aid, '=')
     ->fields(array('modified_date' => mktime()))
     ->execute();
+    $form_state['redirect'] = "node/{$form_state['values']['assignment']->sid}/assignments";
   }
 
 

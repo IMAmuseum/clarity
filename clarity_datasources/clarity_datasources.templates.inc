@@ -34,7 +34,7 @@ function clarity_datasources_preprocess_stat_data_table(&$vars) {
       $ds_content = array();
 
       foreach($ds_col_content as $delta => $content) {
-        $ds_content[$delta][] = isset($content[$result['aid']]) ? $content[$result['aid']] : '';
+        $ds_content[$delta][] = isset($content[$result['aid']]) ? $content[$result['aid']] : null;
       }
 
       $vars['rows'][] = theme('stat_data_table_row', array('assignment' => $assignment,
@@ -72,17 +72,21 @@ function clarity_datasources_preprocess_stat_data_table_row(&$vars) {
 
   $vars['columns']['assignment_edit'] = array(
     'classes' => 'w1',
-    'content' => l('Edit', 'submit-data/' . $vars['assignment']->aid)
+    'content' => l(t('Edit'), "node/{$vars['assignment']->sid}/assignments/{$vars['assignment']->aid}/edit")
   );
-
 
   foreach ($vars['ds_column_content'] as $delta => $column) {
     foreach($column as $subcolumn) {
       $vars['columns']['ds-' . $delta] = array(
         'classes' => 'w2',
-        'content' => isset($subcolumn) ? $subcolumn : '&nbsp'
+        'content' => isset($subcolumn) ? $subcolumn : '&nbsp;'
       );
     }
   }
+
+  $vars['columns']['fields_edit'] = array(
+    'classes' => 'w1',
+    'content' => l(t('Edit'), 'submit-data/' . $vars['assignment']->aid)
+  );
 
 }
