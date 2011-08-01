@@ -320,8 +320,10 @@ function clarity_datasources_stat_config_form($form, &$form_state, $stat) {
 
       $form["datasource-$delta"]['#tree'] = true;
 
-      foreach($config as $key => $val) {
-        $form["datasource-$delta"][$key]['#default_value'] = $val;
+      if (isset($config) && ($config != null)) {
+        foreach($config as $key => $val) {
+          $form["datasource-$delta"][$key]['#default_value'] = $val;
+        }
       }
 
     }
@@ -598,6 +600,7 @@ function clarity_datasources_entity_load($entities, $type) {
 
       foreach ($entities as $node) {
         if ($node->type != 'statistic') continue;
+        if (!isset($node->field_datasources['und'])) continue;
         foreach ($node->field_datasources['und'] as $delta => &$item) {
           $result = db_select('clarity_datasource_stat_config', 'c')
             ->fields('c')

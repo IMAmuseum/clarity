@@ -40,7 +40,7 @@ function clarity_datasources_wire($stat, $delta = null) {
   $ds_info = _clarity_datasources_get_datasources_for_stat($stat->nid);
   if (isset($delta)) $ds_info = $ds_info[$delta];
 
-  if ($ds_info) {
+  if (isset($ds_info)) {
     $ds_data = call_user_func($ds_info->class . '::getData', $stat->nid, array('delta' => $delta));
   } else {
     $ds_data = array();
