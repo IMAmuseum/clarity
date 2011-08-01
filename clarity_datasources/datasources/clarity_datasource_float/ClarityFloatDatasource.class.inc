@@ -28,19 +28,6 @@ class ClarityFloatDatasource implements DatasourceIfc, DatasourceStatIfc {
 
   }
 
-  // DEPRECATED
-  public static function validateDataForm($form, $form_state) {
-
-    foreach($form_state['values']['datasources'] as $delta => $ds_fieldset) {
-
-      if (!is_numeric($ds_fieldset['data_fields']['single-value'])) {
-        form_set_error("datasources][$delta][data_fields][single-value", t('Please enter a numeric value'));
-      }
-
-    }
-
-  }
-
 
   public static function validateDataFormFields($field_id_prefix, $field_values, $delta) {
 
@@ -102,6 +89,24 @@ class ClarityFloatDatasource implements DatasourceIfc, DatasourceStatIfc {
     }
 
     return $data;
+
+  }
+
+
+  public static function getLatestValueContent($stat_nid, $delta) {
+
+    $q = 'SELECT * FROM {clarity_value_float} f
+          INNER JOIN {assignment} as a ON f.assignment_id = a.aid
+          WHERE a.sid = :stat AND f.delta = :delta ORDER BY expire_date DESC LIMIT 1';
+    $args = array(':stat' => $stat_nid, 'delta' => $delta);
+    $record =  db_query($q, $args)->fetchAssoc();
+
+    $stat = node_load($stat_nid);
+    $ds = $stat->field_datasources['und'][$delta];
+    $content  = "<span class='label'>{$ds['label']}:</span> ";
+    $content .= "<span class='value'>{$record['value']}</span> ";
+    $content .= "<span class='suffix'>{$ds['config']['unit']}</div>";
+    return $content;
 
   }
 

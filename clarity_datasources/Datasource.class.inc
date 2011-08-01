@@ -32,6 +32,14 @@ interface DatasourceIfc {
   static function getData($stat_id, $options = array());
 
 
+  /**
+   *
+   * A function to get the content to display for the latest value
+   * @param $stat_id
+   */
+  static function getLatestValueContent($stat_id, $delta);
+
+
 
   /**
    * A function to fetch info for the data table header

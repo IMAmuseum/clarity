@@ -122,6 +122,37 @@ function clarity_datasources_theme() {
 
 
 /**
+ * Implementation of hook_node_view
+ * @todo Consider how to make this configurable
+ *
+function clarity_datasources_node_view($node, $view_mode, $langcode) {
+
+
+  if ($node->type != 'statistic') return;
+
+  if ($view_mode != '') {
+
+    $datasources = _clarity_datasources_get_datasources_for_stat($node->nid, true);
+
+    foreach ($datasources as $delta => $ds) {
+
+      $content = $ds['object']->getLatestValueContent($node->nid, $delta);
+
+      $node->content["latest-$delta"] = array(
+        '#markup' => "<div id='latest-value-$delta'>$content</div>",
+        '#weight' => $delta-20
+      );
+
+      unset($ds['object']);
+
+    }
+
+  }
+
+}
+*/
+
+/**
  * Render the data submission form for the given assignment. Invokes
  * a form render via the datasource for the associated statistic.
  * @param unknown_type $form

@@ -8,11 +8,13 @@ function clarity_datasource_float_install() {
 
 }
 
+
 function clarity_datasource_float_uninstall() {
 
   clarity_datasources_remove_datasource('ClarityFloatDatasource');
 
 }
+
 
 function clarity_datasource_float_schema() {
 
