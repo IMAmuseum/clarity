@@ -10,7 +10,7 @@ function clarity_datasources_preprocess_stat_data_table(&$vars) {
   $assignments = array();
   $vars['rows'] = array();
 
-  $datasources = _clarity_datasources_get_datasources_for_stat($vars['stat_nid'], true);
+  $datasources = _clarity_datasources_get_datasources_for_stat($vars['stat_nid']);
   $stat = node_load($vars['stat_nid']);
 
   // Assemble the header content
@@ -18,8 +18,10 @@ function clarity_datasources_preprocess_stat_data_table(&$vars) {
   $ds_col_content = array();
   foreach ($datasources as $delta => $datasource) {
     $ds_header_info[$delta] = array('label' => $stat->field_datasources['und'][$delta]['label'],
-                                    'sublabels' => $datasource['object']->getDataTableHeaderInfo($vars['stat_nid'], $delta));
-    $ds_col_content[$delta] = $datasource['object']->getDataTableColumnContent($vars['stat_nid'], $delta);
+                                    'sublabels' => call_user_func_array($datasource->class . '::getDataTableHeaderInfo',
+                                                                        array($vars['stat_nid'], $delta)));
+    $ds_col_content[$delta] = call_user_func_array($datasource->class . '::getDataTableColumnContent',
+                                                   array($vars['stat_nid'], $delta));
   }
 
   $vars['header_content'] = theme('stat_data_table_header', array('ds_header_labels' => $ds_header_info));
