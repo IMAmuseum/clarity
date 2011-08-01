@@ -525,7 +525,7 @@ function _clarity_datasources_get_datasources_for_stat($stat_id) {
 function _clarity_datasources_call_if_implemented($class, $ifc, $func, $args) {
 
   if (in_array($ifc, class_implements($class))) {
-    call_user_func_array($class . '::' . $func, $args);
+    return call_user_func_array($class . '::' . $func, $args);
   };
 
 }
