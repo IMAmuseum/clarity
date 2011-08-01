@@ -467,7 +467,11 @@ function clarity_datasources_display_stat_data($stat) {
 
   drupal_add_css(drupal_get_path('module', 'clarity_datasources') . '/clarity_datasources.css');
 
-  return theme('stat_data_table', array('stat_nid' => $stat->nid));
+
+  $content  = l(t('Create Assignment'), "node/{$stat->nid}/assignments/create");
+  $content .= theme('stat_data_table', array('stat_nid' => $stat->nid));
+
+  return $content;
 
 }
 
