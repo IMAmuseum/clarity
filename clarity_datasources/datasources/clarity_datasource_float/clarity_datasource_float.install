@@ -27,7 +27,7 @@ function clarity_datasource_float_schema() {
         'not null' => true,
         'description' => 'The assignment corresponding to this value'
       ),
-      'delta' => array(
+      'field_index' => array(
         'type' => 'int',
         'size' => 'tiny',
         'unsigned' => true,

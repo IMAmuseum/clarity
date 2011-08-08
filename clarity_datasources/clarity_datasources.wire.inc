@@ -1,6 +1,6 @@
 <?php
 
-function clarity_datasources_wire($stat, $delta = null) {
+function clarity_datasources_wire($stat, $index = null) {
 
   $result = array('version' => '0.6');
 
@@ -38,10 +38,10 @@ function clarity_datasources_wire($stat, $delta = null) {
     exit();
   }
   $ds_info = _clarity_datasources_get_datasources_for_stat($stat->nid);
-  if (isset($delta)) $ds_info = $ds_info[$delta];
+  if (isset($index)) $ds_info = $ds_info[$index];
 
   if (isset($ds_info)) {
-    $ds_data = call_user_func($ds_info->class . '::getData', $stat->nid, array('delta' => $delta));
+    $ds_data = call_user_func($ds_info->class . '::getData', $stat->nid, array('index' => $index));
   } else {
     $ds_data = array();
   }

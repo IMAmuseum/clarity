@@ -16,12 +16,13 @@ function clarity_datasources_preprocess_stat_data_table(&$vars) {
   // Assemble the header content
   $ds_header_info = array();
   $ds_col_content = array();
-  foreach ($datasources as $delta => $datasource) {
-    $ds_header_info[$delta] = array('label' => $stat->field_datasources['und'][$delta]['label'],
+  foreach ($datasources as $index => $datasource) {
+    $delta = _clarity_datasources_delta_for_index($stat, $index);
+    $ds_header_info[$index] = array('label' => $stat->field_datasources['und'][$delta]['label'],
                                     'sublabels' => call_user_func_array($datasource->class . '::getDataTableHeaderInfo',
-                                                                        array($vars['stat_nid'], $delta)));
-    $ds_col_content[$delta] = call_user_func_array($datasource->class . '::getDataTableColumnContent',
-                                                   array($vars['stat_nid'], $delta));
+                                                                        array($vars['stat_nid'], $index)));
+    $ds_col_content[$index] = call_user_func_array($datasource->class . '::getDataTableColumnContent',
+                                                   array($vars['stat_nid'], $index));
   }
 
   $vars['header_content'] = theme('stat_data_table_header', array('ds_header_labels' => $ds_header_info));
@@ -35,8 +36,8 @@ function clarity_datasources_preprocess_stat_data_table(&$vars) {
 
       $ds_content = array();
 
-      foreach($ds_col_content as $delta => $content) {
-        $ds_content[$delta][] = isset($content[$result['aid']]) ? $content[$result['aid']] : null;
+      foreach($ds_col_content as $index => $content) {
+        $ds_content[$index][] = isset($content[$result['aid']]) ? $content[$result['aid']] : null;
       }
 
       $vars['rows'][] = theme('stat_data_table_row', array('assignment' => $assignment,
@@ -77,9 +78,9 @@ function clarity_datasources_preprocess_stat_data_table_row(&$vars) {
     'content' => l(t('Edit'), "node/{$vars['assignment']->sid}/assignments/{$vars['assignment']->aid}/edit")
   );
 
-  foreach ($vars['ds_column_content'] as $delta => $column) {
+  foreach ($vars['ds_column_content'] as $index => $column) {
     foreach($column as $subcolumn) {
-      $vars['columns']['ds-' . $delta] = array(
+      $vars['columns']['ds-' . $index] = array(
         'classes' => 'w2',
         'content' => isset($subcolumn) ? $subcolumn : '&nbsp;'
       );

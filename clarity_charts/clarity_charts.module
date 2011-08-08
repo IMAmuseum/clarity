@@ -15,12 +15,12 @@ function clarity_charts_node_view($node, $view_mode, $langcode) {
     if (!isset($node->field_datasources['und'])) return;
     foreach($node->field_datasources['und'] as $delta => $datasource) {
 
-      $node->content["chart-$delta"] = array(
-        '#markup' => "<div id='chart-$delta'>chart</div>",
+      $node->content["chart-{$datasource['index']}"] = array(
+        '#markup' => "<div id='chart-{$datasource['index']}'>chart</div>",
         '#weight' => -10
       );
 
-      drupal_add_js("clarity_charts.push(new ClarityChart('chart-$delta', 'line', {$node->nid}, $delta));", 'inline');
+      drupal_add_js("clarity_charts.push(new ClarityChart('chart-{$datasource['index']}', 'line', {$node->nid}, {$datasource['index']}));", 'inline');
 
     }
 

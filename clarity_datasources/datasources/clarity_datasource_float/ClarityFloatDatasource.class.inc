@@ -3,12 +3,14 @@
 class ClarityFloatDatasource implements DatasourceIfc, DatasourceStatIfc {
 
 
-  public static function getDataFormFields($stat, $delta, $assignment_id = null) {
+  public static function getDataFormFields($stat, $index, $assignment_id = null) {
+
+    $delta = _clarity_datasources_delta_for_index($stat, $index);
 
     $result = db_select('clarity_value_float', 'f')
               ->fields('f')
               ->condition('assignment_id', $assignment_id, '=')
-              ->condition('delta', $delta, '=')
+              ->condition('field_index', $index, '=')
               ->execute();
 
     $default = null;
@@ -29,7 +31,7 @@ class ClarityFloatDatasource implements DatasourceIfc, DatasourceStatIfc {
   }
 
 
-  public static function validateDataFormFields($field_id_prefix, $field_values, $delta) {
+  public static function validateDataFormFields($field_id_prefix, $field_values, $index) {
 
     if (!is_numeric($field_values['single-value'])) {
         form_set_error($field_id_prefix . 'single-value', t('Please enter a numeric value'));
@@ -38,12 +40,12 @@ class ClarityFloatDatasource implements DatasourceIfc, DatasourceStatIfc {
   }
 
 
-  public static function submitDataFormFields($field_values, $assignment_id, $delta) {
+  public static function submitDataFormFields($field_values, $assignment_id, $index) {
 
-    db_query('REPLACE INTO {clarity_value_float} (assignment_id, value, delta) VALUES (:aid, :val, :delta)',
+    db_query('REPLACE INTO {clarity_value_float} (assignment_id, value, field_index) VALUES (:aid, :val, :index)',
              array(':aid' => $assignment_id,
                    ':val' => $field_values['single-value'],
-                   ':delta' => $delta));
+                   ':index' => $index));
 
   }
 
@@ -72,9 +74,9 @@ class ClarityFloatDatasource implements DatasourceIfc, DatasourceStatIfc {
           WHERE a.sid = :stat';
     $args = array(':stat' => $stat_nid);
 
-    if (isset($options['delta'])) {
-      $q .=  ' AND f.delta = :delta';
-      $args[':delta'] = $options['delta'];
+    if (isset($options['index'])) {
+      $q .=  ' AND f.field_index = :index';
+      $args[':index'] = $options['index'];
     }
 
     if (isset($options['uid'])) {
@@ -93,15 +95,16 @@ class ClarityFloatDatasource implements DatasourceIfc, DatasourceStatIfc {
   }
 
 
-  public static function getLatestValueContent($stat_nid, $delta) {
+  public static function getLatestValueContent($stat_nid, $index) {
 
     $q = 'SELECT * FROM {clarity_value_float} f
           INNER JOIN {assignment} as a ON f.assignment_id = a.aid
-          WHERE a.sid = :stat AND f.delta = :delta ORDER BY expire_date DESC LIMIT 1';
-    $args = array(':stat' => $stat_nid, 'delta' => $delta);
+          WHERE a.sid = :stat AND f.field_index = :index ORDER BY expire_date DESC LIMIT 1';
+    $args = array(':stat' => $stat_nid, ':index' => $index);
     $record =  db_query($q, $args)->fetchAssoc();
 
     $stat = node_load($stat_nid);
+    $delta = _clarity_datasource_delta_for_index($stat, $index);
     $ds = $stat->field_datasources['und'][$delta];
     $content  = "<span class='label'>{$ds['label']}:</span> ";
     $content .= "<span class='value'>{$record['value']}</span> ";
@@ -111,22 +114,23 @@ class ClarityFloatDatasource implements DatasourceIfc, DatasourceStatIfc {
   }
 
 
-  public static function getDataTableHeaderInfo($stat_nid, $delta) {
+  public static function getDataTableHeaderInfo($stat_nid, $index) {
 
     $stat = node_load($stat_nid);
+    $delta = _clarity_datasources_delta_for_index($stat, $index);
     return array('(' . $stat->field_datasources['und'][$delta]['config']['unit'] . ')');
 
   }
 
 
-  public static function getDataTableColumnContent($stat_nid, $delta, $options = array()) {
+  public static function getDataTableColumnContent($stat_nid, $index, $options = array()) {
 
     $query = db_select('clarity_value_float', 'v');
     $query->join('assignment', 'a', 'v.assignment_id = a.aid');
 
     $results = $query->fields('v')
                      ->condition('sid', $stat_nid, '=')
-                     ->condition('delta', $delta)
+                     ->condition('field_index', $index)
                      ->execute();
 
     $content = array();
