@@ -23,6 +23,10 @@ interface DatasourceIfc {
   static function submitDataFormFields($field_values, $assignment_id, $index);
 
 
+  /**
+   * A function to return the type of data managed by the datasource.
+   */
+  static function getDataType();
 
   /**
    * A function to fetch all data for a stat

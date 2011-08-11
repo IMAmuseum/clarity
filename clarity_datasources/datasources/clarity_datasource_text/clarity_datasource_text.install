@@ -1,25 +1,25 @@
 <?php 
 
-function clarity_datasource_float_install() {
+function clarity_datasource_text_install() {
 
-  clarity_datasources_create_datasource('clarity_datasource_float', 
-                                        'ClarityFloatDatasource',
-                                        'Manual Single Number');
-
-}
-
-
-function clarity_datasource_float_uninstall() {
-
-  clarity_datasources_remove_datasource('ClarityFloatDatasource');
+  clarity_datasources_create_datasource('clarity_datasource_text', 
+                                        'ClarityTextDatasource',
+                                        'Manual Text Field');
 
 }
 
 
-function clarity_datasource_float_schema() {
+function clarity_datasource_text_uninstall() {
 
-  $schema['clarity_value_float'] = array(
-    'description' => 'Stores data for single-float stats',
+  clarity_datasources_remove_datasource('ClarityTextDatasource');
+
+}
+
+
+function clarity_datasource_text_schema() {
+
+  $schema['clarity_value_text'] = array(
+    'description' => 'Stores text for stats',
     'fields' => array(
       'assignment_id' => array(
         'type' => 'int',
@@ -33,13 +33,13 @@ function clarity_datasource_float_schema() {
         'unsigned' => true,
         'not null' => true,
         'description' => 'The index of the datasource on the stat'      
-      ),
+      ),      
       'value' => array(
-        'type' => 'float',
+        'type' => 'text',
         'not null' => false,
         'default' => NULL,
-        'description' => 'The value'
-      )
+        'description' => 'The text value'
+      ),
     ),
     'indexes' => array(
     ),

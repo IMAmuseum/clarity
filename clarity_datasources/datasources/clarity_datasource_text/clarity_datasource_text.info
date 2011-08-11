@@ -1,0 +1,6 @@
+name = Clarity Datasource - Text
+description = The text value data source module for Clarity
+core = 7.x
+package = "Clarity"
+dependencies[] = clarity_datasources
+files[] = 'ClarityTextDatasource.class.inc'

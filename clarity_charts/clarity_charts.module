@@ -15,6 +15,9 @@ function clarity_charts_node_view($node, $view_mode, $langcode) {
     if (!isset($node->field_datasources['und'])) return;
     foreach($node->field_datasources['und'] as $delta => $datasource) {
 
+      $ds_info = _clarity_datasources_get_datasource($datasource['dsid']);
+      if (call_user_func($ds_info->class . '::getDataType') != 'float') continue;
+
       $node->content["chart-{$datasource['index']}"] = array(
         '#markup' => "<div id='chart-{$datasource['index']}'>chart</div>",
         '#weight' => -10

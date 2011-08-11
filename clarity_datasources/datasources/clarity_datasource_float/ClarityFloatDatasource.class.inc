@@ -63,9 +63,16 @@ class ClarityFloatDatasource implements DatasourceIfc, DatasourceStatIfc {
 
   }
 
+
   public static function validateStatConfigForm($stat) {
 
   }
+
+
+  public static function getDataType() {
+    return 'float';
+  }
+
 
   public static function getData($stat_nid, $options = array()) {
 
@@ -106,9 +113,10 @@ class ClarityFloatDatasource implements DatasourceIfc, DatasourceStatIfc {
     $stat = node_load($stat_nid);
     $delta = _clarity_datasource_delta_for_index($stat, $index);
     $ds = $stat->field_datasources['und'][$delta];
-    $content  = "<span class='label'>{$ds['label']}:</span> ";
+    $content  = "<div class='latest-value'>";
+    $content .= "<span class='label'>{$ds['label']}:</span> ";
     $content .= "<span class='value'>{$record['value']}</span> ";
-    $content .= "<span class='suffix'>{$ds['config']['unit']}</div>";
+    $content .= "<span class='suffix'>{$ds['config']['unit']}</span></div>";
     return $content;
 
   }
