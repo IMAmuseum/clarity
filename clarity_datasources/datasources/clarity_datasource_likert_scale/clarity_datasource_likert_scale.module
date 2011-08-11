@@ -14,7 +14,7 @@
 /*
  * Implementation of hook_help
  */
-function clarity_datasource_likert_scale_help($path, $arg) 
+function clarity_datasource_likert_scale_help($path, $arg)
 {
     switch($path) {
       case 'admin/help#clarity_datasource_likert_scale':
@@ -24,29 +24,3 @@ function clarity_datasource_likert_scale_help($path, $arg)
 }
 
 
-function clarity_datasource_likert_scale_theme() 
-{
-    return array(
-        'clarity_likert_scale_table' => array(
-            'template' => 'clarity_likert_scale_table',
-            'arguments' => array(
-                'data' => array()
-            )
-        ),
-        'clarity_likert_scale_table_row' => array(
-            'template' => 'clarity_likert_scale_table_row',
-            'arguments' => array(
-                'data' => null
-            )
-        ),
-    );
-
-}
-
-function clarity_datasource_likert_scale_preprocess_clarity_likert_scale_table(&$vars) 
-{
-    $vars['row_content'] = '';
-    foreach($vars['data'] as $data) {
-        $vars['row_content'] .= theme('clarity_likert_scale_table_row', array('data' => $data));
-    }
-}

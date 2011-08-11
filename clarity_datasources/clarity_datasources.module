@@ -220,7 +220,7 @@ function clarity_datasources_submit_data_form_validate($form, &$form_state) {
   foreach($form_state['values']['datasources'] as $index => $ds_fieldset) {
 
     _clarity_datasources_call_if_implemented($ds_fieldset['info']->class,
-                                             'DatasourceStatIfc',
+                                             'DatasourceIfc',
                                              'validateDataFormFields',
                                              array("datasources][$index][data_fields][",
                                                    $ds_fieldset['data_fields'],
@@ -241,7 +241,7 @@ function clarity_datasources_submit_data_form_submit($form, &$form_state) {
   foreach($form_state['values']['datasources'] as $index => $ds_fieldset) {
 
     _clarity_datasources_call_if_implemented($ds_fieldset['info']->class,
-                                             'DatasourceStatIfc',
+                                             'DatasourceIfc',
                                              'submitDataFormFields',
                                              array($ds_fieldset['data_fields'],
                                                    $form_state['values']['assignment']->aid,

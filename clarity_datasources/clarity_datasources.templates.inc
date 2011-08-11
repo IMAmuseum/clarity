@@ -17,10 +17,16 @@ function clarity_datasources_preprocess_stat_data_table(&$vars) {
   $ds_header_info = array();
   $ds_col_content = array();
   foreach ($datasources as $index => $datasource) {
+
+    $sublabels = call_user_func_array($datasource->class . '::getDataTableHeaderInfo',
+                                      array($vars['stat_nid'], $index));
+    foreach($sublabels as &$label) {
+      if (!isset($label)) $label = '&nbsp;';
+    }
+
     $delta = _clarity_datasources_delta_for_index($stat, $index);
     $ds_header_info[$index] = array('label' => $stat->field_datasources['und'][$delta]['label'],
-                                    'sublabels' => call_user_func_array($datasource->class . '::getDataTableHeaderInfo',
-                                                                        array($vars['stat_nid'], $index)));
+                                    'sublabels' => $sublabels);
     $ds_col_content[$index] = call_user_func_array($datasource->class . '::getDataTableColumnContent',
                                                    array($vars['stat_nid'], $index));
   }

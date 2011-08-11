@@ -1,4 +1,4 @@
-name = Clarity Datasource Linkert Scale
+name = Clarity Datasource - Likert Scale
 description = The likert scale datasource for Clarity.
 core = 7.x
 package = "Clarity"

@@ -16,50 +16,35 @@ function clarity_datasource_likert_scale_uninstall() {
 
 function clarity_datasource_likert_scale_schema() {
 
-  $schema['clarity_datasource_likert_scale'] = array(
+  $schema['clarity_value_likert_scale'] = array(
     'description' => 'Stores data for likert scale stats',
     'fields' => array(
-      'stat_nid' => array(
+      'assignment_id' => array(
         'type' => 'int',
         'unsigned' => true,
         'not null' => true,
-        'description' => 'The stat corresponding to this value'
+        'description' => 'The assignment corresponding to this value'
       ),
-      'uid' => array(
+      'field_index' => array(
         'type' => 'int',
-        'unsigned' => true,
-        'not null' => true, // All stats tracked by this datasource are user-submitted
-        'description' => 'The user who submitted this value'
-      ),
-      'timestamp' => array(
-        'type' => 'int',
+        'size' => 'tiny',
         'unsigned' => true,
         'not null' => true,
-        'description' => 'The time corresponding to this value'      
-      ),
+        'description' => 'The index of the datasource on the stat'      
+      ),            
       'value' => array(
         'type' => 'float',
         'not null' => false,
         'default' => NULL,
         'description' => 'The value'
-      ),
-      'modified_time' => array(
-        'type' => 'int',
-        'unsigned' => true,
-        'not null' => true,
-        'description' => 'The last time this value was modified'      
-      )
-      
+      ),      
     ),
     'indexes' => array(
-        'stat' => array('stat_nid'),
-        'stat_user' => array('stat_nid', 'uid')       
     ),
     'foreign keys' => array(
-      'stat_nid' => array('node' => 'nid'),
-      'uid' => array('users' => 'uid'),
+      'assignment_id' => array('assignment' => 'aid'),
     ),
-    'primary key' => array('stat_nid', 'uid', 'timestamp')      
+    'primary key' => array('assignment_id', 'field_index')     
   );
 
   return $schema; 
