@@ -3,6 +3,25 @@
 class ClarityFloatDatasource implements DatasourceIfc, DatasourceStatIfc {
 
 
+  /**
+   * Applies formatting to a value
+   */
+  private static function formatValue($format, $value) {
+
+    switch($format) {
+
+      case 'money':
+        return '$' . number_format($value, 2);
+        break;
+
+      default:
+        return $value;
+
+    }
+
+  }
+
+
   public static function getDataFormFields($stat, $index, $assignment_id = null) {
 
     $delta = _clarity_datasources_delta_for_index($stat, $index);
@@ -57,6 +76,18 @@ class ClarityFloatDatasource implements DatasourceIfc, DatasourceStatIfc {
       '#title' => t('Unit'),
       '#description' => 'The unit of measure for this value',
       '#required' => true
+    );
+
+
+    $format_options = array(
+      null => 'None',
+      'money' => '$1,000.00'
+    );
+
+    $fields['formatting'] = array(
+      '#type' => 'select',
+      '#options' => $format_options,
+      '#description' => 'Special formatting for this value'
     );
 
     return $fields;
@@ -133,6 +164,10 @@ class ClarityFloatDatasource implements DatasourceIfc, DatasourceStatIfc {
 
   public static function getDataTableColumnContent($stat_nid, $index, $options = array()) {
 
+    $stat = node_load($stat_nid);
+    $delta = _clarity_datasources_delta_for_index($stat, $index);
+    $format = $stat->field_datasources['und'][$delta]['config']['formatting'];
+
     $query = db_select('clarity_value_float', 'v');
     $query->join('assignment', 'a', 'v.assignment_id = a.aid');
 
@@ -143,7 +178,7 @@ class ClarityFloatDatasource implements DatasourceIfc, DatasourceStatIfc {
 
     $content = array();
     while($result = $results->fetchAssoc()) {
-      $content[$result['assignment_id']] = $result['value'];
+      $content[$result['assignment_id']] = self::formatValue($format, $result['value']);
     }
 
     return $content;
