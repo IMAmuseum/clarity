@@ -78,8 +78,7 @@ class ClarityFloatDatasource implements DatasourceIfc, DatasourceStatIfc {
     $fields['unit'] = array(
       '#type' => 'textfield',
       '#title' => t('Unit'),
-      '#description' => 'The unit of measure for this value',
-      '#required' => true
+      '#description' => 'A unit of measure for this value'
     );
 
 
@@ -162,7 +161,12 @@ class ClarityFloatDatasource implements DatasourceIfc, DatasourceStatIfc {
 
     $stat = node_load($stat_nid);
     $delta = _clarity_datasources_delta_for_index($stat, $index);
-    return array('(' . $stat->field_datasources['und'][$delta]['config']['unit'] . ')');
+    $unit = $stat->field_datasources['und'][$delta]['config']['unit'];
+    if (isset($unit) && ($unit != '')) {
+      return array('(' . $unit . ')');
+    } else {
+      return array(null);
+    }
 
   }
 

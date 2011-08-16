@@ -122,7 +122,7 @@ class ClarityTextDatasource implements DatasourceIfc, DatasourceStatIfc {
 
     $stat = node_load($stat_nid);
     $delta = _clarity_datasources_delta_for_index($stat, $index);
-    return array('(' . $stat->field_datasources['und'][$delta]['label'] . ')');
+    return array(null);
 
   }
 
