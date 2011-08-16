@@ -10,6 +10,10 @@ class ClarityFloatDatasource implements DatasourceIfc, DatasourceStatIfc {
 
     switch($format) {
 
+      case 'dollars':
+        return '$' . number_format($value, 0);
+        break;
+
       case 'money':
         return '$' . number_format($value, 2);
         break;
@@ -81,6 +85,7 @@ class ClarityFloatDatasource implements DatasourceIfc, DatasourceStatIfc {
 
     $format_options = array(
       null => 'None',
+      'dollars' => '$1,000',
       'money' => '$1,000.00'
     );
 
