@@ -407,12 +407,16 @@
 	 * Generate new assignment
 	 */
 	function assignment_generate_new_assignment($assignment_id) {
+
 		$result = db_query("SELECT uid, sid, expire_date
 							FROM {assignment}
 							WHERE aid = :aid", array(':aid' => $assignment_id))->fetchObject();
 
-		$node = node_load($result->sid);
-		$items = field_get_items('node', $node, 'field_expiration_interval');
+		$stat = node_load($result->sid);
+		$items = field_get_items('node', $stat, 'field_expiration_interval');
+
+		// Abort if the stat has no expiration interval
+		if (empty($items)) return;
 
 		$assignment = new stdClass();
 		$assignment->aid = null;
@@ -421,8 +425,8 @@
 		$assignment->created = mktime();
 		$assignment->expire_date = strtotime($items[0]['value'], $result->expire_date);
 
-		if (property_exists($node,'terms')) {
-            $assignment->terms = $node->terms;
+		if (property_exists($stat,'terms')) {
+            $assignment->terms = $stat->terms;
 		}
 
 		drupal_write_record('assignment', $assignment);
