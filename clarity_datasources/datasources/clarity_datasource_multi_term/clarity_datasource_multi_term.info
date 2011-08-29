@@ -1,4 +1,4 @@
-name = Clarity Datasource Multi-Term
+name = Clarity Datasource - Multi-Term
 description = The multi-term data source module for Clarity
 core = 7.x
 package = "Clarity"

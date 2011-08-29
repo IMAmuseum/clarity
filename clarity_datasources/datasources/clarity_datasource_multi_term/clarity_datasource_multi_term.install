@@ -1,22 +1,22 @@
 <?php 
 
-function clarity_multi_term_datasource_install() {
+function clarity_datasource_multi_term_install() {
 
-  clarity_datasources_create_datasource('clarity_datasource', 
+  clarity_datasources_create_datasource('clarity_datasource_multi_term', 
                                         'ClarityMultiTermDatasource',
                                         'Multi-term');
 }
 
-function clarity_multi_term_datasource_uninstall() {
+function clarity_datasource_multi_term_uninstall() {
 
   clarity_datasources_remove_datasource('ClarityMultiTermDatasource');
 
 }
 
 
-function clarity_multi_term_datasource_schema() {
+function clarity_datasource_multi_term_schema() {
 
-  $schema['clarity_multi_term'] = array(
+  $schema['clarity_value_term'] = array(
     'description' => 'Stores data for multi-term stats',
     'fields' => array(
       'aid' => array(
@@ -32,7 +32,8 @@ function clarity_multi_term_datasource_schema() {
         'description' => 'The term id'
       ),
     ),
-    'primary key' => array('aid', 'tid')      
+    'primary key' => array('aid'),
+    'unique keys' => array('aid_tid' => array('aid','tid'))
   );
 
   return $schema; 

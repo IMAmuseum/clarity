@@ -1,17 +1,39 @@
 <?php
 
-class ClarityMultiTermDatasource implements DatasourceIfc, DatasourceAssignmentIfc {
+class ClarityMultiTermDatasource implements DatasourceIfc, DatasourceStatIfc {
 
 
-  public static function getDataFormFields($stat) {
-  	
+  public static function getStatConfigFormFields($stat) {
+
+    $vocab_options = array(0=>'One');
+
+    $fields['vocabulary'] = array(
+      '#type' => 'select',
+      '#options' => $vocab_options,
+      '#description' => 'The set of options for this stat'
+    );
+
+    return $fields;
+
+  }
+
+
+  public static function validateStatConfigForm($stat) {
+
+  }
+
+
+  public static function getDataFormFields($stat, $index, $assignment_id = null) {
+
+
+/*
   	$taxonomy = taxonomy_vocabulary_load($stat->field_categories['und'][0]['value']);
   	$terms = taxonomy_get_tree($stat->field_categories['und'][0]['value'], $parent = 0, $max_depth = 1);
   	$options = array();
   	foreach($terms as $term) {
   		$options[$term->tid] = $term->name;
   	}
-  	
+
   	$fields['terms'] = array(
 			'#type' => 'checkboxes',
   		'#title' => t($taxonomy->name),
@@ -21,18 +43,47 @@ class ClarityMultiTermDatasource implements DatasourceIfc, DatasourceAssignmentI
   	);
 
     return $fields;
+*/
 
   }
+
+
+  public static function validateDataFormFields($field_id_prefix, $field_values, $index) { }
+
+  public static function submitDataFormFields($field_values, $assignment_id, $index) { }
+
+  public static function getDataType() {
+    return 'term';
+  }
+
+
+  public static function getData($stat_nid, $options = array()) { return array(); }
+
+
+  public static function getLatestValueContent($stat_nid, $index) { return 0; }
+
+
+  public static function getDataTableHeaderInfo($stat_nid, $index) {
+
+    return array(null);
+
+  }
+
+
+  public static function getDataTableColumnContent($stat_nid, $index, $options = array()) { return null; }
+
 
   public static function getStatConfigFormFields($stat) {
 
-  
+
   }
 
   public static function validateStatConfigForm($form, $form_state) {
-  	
+
   }
-  
+
+
+  /*
   public static function validateDataForm($form, $form_state) {
 
     if (!isset($form_state['values']['terms'])) {
@@ -61,9 +112,9 @@ class ClarityMultiTermDatasource implements DatasourceIfc, DatasourceAssignmentI
 
     }
 
-  }
+  }*/
 
-
+/*
   public static function getData($stat_nid, $options = array()) {
 
     $q = 'SELECT * FROM {clarity_multi_term} WHERE stat_nid = :stat';
@@ -87,17 +138,12 @@ class ClarityMultiTermDatasource implements DatasourceIfc, DatasourceAssignmentI
     return $data;
 
   }
+ */
 
 
-  public static function createDataTable($stat_nid) {
-
-    $data = ClarityMultiTermDatasource::getData($stat_nid);
-
-    return theme('clarity_multi_term_table', array('data' => $data));
 
 
-  }
-
+  /*
   public static function assignmentFormFields(&$form, &$form_state, $form_id) {
 
     $node = node_load($form['sid']['#value']);
@@ -162,5 +208,6 @@ class ClarityMultiTermDatasource implements DatasourceIfc, DatasourceAssignmentI
     }
 
   }
+  */
 
 }

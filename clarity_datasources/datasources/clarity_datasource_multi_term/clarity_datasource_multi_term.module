@@ -1,0 +1,31 @@
+<?php
+/**
+ * @file
+ * This module implements the core data source for the Clarity package.
+ *
+ * A data source presents an interface through which stat data can be submitted
+ * by users for stats, and edited, deleted, or plotted on charts.
+ *
+ * Custom versions of this module can be implemented which poll external datasources.
+ * By implementing the same hook interface, these custom modules can supply data to
+ * charts.
+ */
+
+/*
+ * Implementation of hook_help
+ */
+function clarity_datasource_multi_term_help($path, $arg) {
+
+  switch($path) {
+    case 'admin/help#clarity_datasource_multi_term':
+      return '<p>' . t("Implements the multi term data source for the Clarity package.") . '</p>';
+      break;
+  }
+
+}
+
+
+
+
+
+
