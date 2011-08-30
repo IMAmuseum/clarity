@@ -5,12 +5,30 @@ class ClarityMultiTermDatasource implements DatasourceIfc, DatasourceStatIfc {
 
   public static function getStatConfigFormFields($stat) {
 
-    $vocab_options = array(0=>'One');
+    $vocabs = taxonomy_get_vocabularies();
+    foreach($vocabs as $vocab) {
+      $vocab_options[$vocab->vid] = $vocab->name;
+    }
 
     $fields['vocabulary'] = array(
       '#type' => 'select',
       '#options' => $vocab_options,
-      '#description' => 'The set of options for this stat'
+      '#description' => 'The set of options for this stat',
+      '#required' => true
+    );
+
+    $fields['minimum'] = array(
+      '#type' => 'textfield',
+      '#default_value' => 1,
+      '#description' => t('The minimum number of options to allow'),
+      '#required' => true
+    );
+
+    $fields['maximum'] = array(
+      '#type' => 'textfield',
+      '#default_value' => 1,
+      '#description' => t('The maximum number of options to allow'),
+      '#required' => true
     );
 
     return $fields;
@@ -18,32 +36,50 @@ class ClarityMultiTermDatasource implements DatasourceIfc, DatasourceStatIfc {
   }
 
 
-  public static function validateStatConfigForm($stat) {
+  public static function validateStatConfigForm($values) {
+
+    if (!is_numeric($values['minimum']) || ($values['minimum'] < 0)) {
+      form_set_error('minimum', t('Minimum must be a non-negative number'));
+    }
+
+    if (!is_numeric($values['maximum']) || ($values['maximum'] < 0)) {
+      form_set_error('maximum', t('Maximum must be a non-negative number'));
+    }
+
+    if ($values['minimum'] > $values['maximum']) {
+      form_set_error('maximum', t('Maximum is less than minimum'));
+    }
 
   }
 
 
   public static function getDataFormFields($stat, $index, $assignment_id = null) {
 
+    $delta = _clarity_datasources_delta_for_index($stat, $index);
 
-/*
-  	$taxonomy = taxonomy_vocabulary_load($stat->field_categories['und'][0]['value']);
-  	$terms = taxonomy_get_tree($stat->field_categories['und'][0]['value'], $parent = 0, $max_depth = 1);
-  	$options = array();
-  	foreach($terms as $term) {
-  		$options[$term->tid] = $term->name;
-  	}
+    $vid = $stat->field_datasources['und'][$delta]['config']['vocabulary'];
+    $taxonomy = taxonomy_vocabulary_load($vid);
+    $terms = taxonomy_get_tree($vid, $parent = 0, $max_depth = 1);
 
-  	$fields['terms'] = array(
-			'#type' => 'checkboxes',
-  		'#title' => t($taxonomy->name),
-  		'#options' => $options,
-  		'#description' => $stat->field_unit['und'][0]['value'],
-  		'#required' => true
-  	);
+    $type = ($stat->field_datasources['und'][$delta]['config']['maximum'] == 1) ? 'radios' : 'checkboxes';
+    $required = !($stat->field_datasources['und'][$delta]['config']['minimum'] == 0);
+
+    $options = array();
+    if (($type == 'radios') && !$required) $options[null] = t('None');
+
+    foreach($terms as $term) {
+      $options[$term->tid] = $term->name;
+    }
+
+    $fields['terms'] = array(
+      '#type' => $type,
+      '#title' => t($taxonomy->name),
+      '#options' => $options,
+      '#description' => t('Select terms'),
+      '#required' => $required
+    );
 
     return $fields;
-*/
 
   }
 
@@ -71,16 +107,6 @@ class ClarityMultiTermDatasource implements DatasourceIfc, DatasourceStatIfc {
 
 
   public static function getDataTableColumnContent($stat_nid, $index, $options = array()) { return null; }
-
-
-  public static function getStatConfigFormFields($stat) {
-
-
-  }
-
-  public static function validateStatConfigForm($form, $form_state) {
-
-  }
 
 
   /*

@@ -99,9 +99,7 @@ class ClarityFloatDatasource implements DatasourceIfc, DatasourceStatIfc {
   }
 
 
-  public static function validateStatConfigForm($stat) {
-
-  }
+  public static function validateStatConfigForm($values) { }
 
 
   public static function getDataType() {

@@ -71,7 +71,7 @@ interface DatasourceStatIfc {
    */
   public static function getStatConfigFormFields($stat);
 
-  public static function validateStatConfigForm($stat);
+  public static function validateStatConfigForm($values);
 
 }
 
