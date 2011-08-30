@@ -21,14 +21,14 @@ class ClarityMultiTermDatasource implements DatasourceIfc, DatasourceStatIfc {
       '#type' => 'textfield',
       '#default_value' => 1,
       '#description' => t('The minimum number of options to allow'),
-      '#required' => true
+      '#required' => false
     );
 
     $fields['maximum'] = array(
       '#type' => 'textfield',
       '#default_value' => 1,
       '#description' => t('The maximum number of options to allow'),
-      '#required' => true
+      '#required' => false
     );
 
     return $fields;
@@ -38,15 +38,15 @@ class ClarityMultiTermDatasource implements DatasourceIfc, DatasourceStatIfc {
 
   public static function validateStatConfigForm($values) {
 
-    if (!is_numeric($values['minimum']) || ($values['minimum'] < 0)) {
+    if (!empty($values['minimum']) && (!is_numeric($values['minimum']) || ($values['minimum'] < 0))) {
       form_set_error('minimum', t('Minimum must be a non-negative number'));
     }
 
-    if (!is_numeric($values['maximum']) || ($values['maximum'] < 0)) {
+    if (!empty($values['maximum']) && (!is_numeric($values['maximum']) || ($values['maximum'] < 0))) {
       form_set_error('maximum', t('Maximum must be a non-negative number'));
     }
 
-    if ($values['minimum'] > $values['maximum']) {
+    if (!empty($values['maximum']) && ($values['minimum'] > $values['maximum'])) {
       form_set_error('maximum', t('Maximum is less than minimum'));
     }
 
@@ -60,23 +60,65 @@ class ClarityMultiTermDatasource implements DatasourceIfc, DatasourceStatIfc {
     $vid = $stat->field_datasources['und'][$delta]['config']['vocabulary'];
     $taxonomy = taxonomy_vocabulary_load($vid);
     $terms = taxonomy_get_tree($vid, $parent = 0, $max_depth = 1);
+    $min = $stat->field_datasources['und'][$delta]['config']['minimum'];
+    $max = $stat->field_datasources['und'][$delta]['config']['maximum'];
 
-    $type = ($stat->field_datasources['und'][$delta]['config']['maximum'] == 1) ? 'radios' : 'checkboxes';
-    $required = !($stat->field_datasources['und'][$delta]['config']['minimum'] == 0);
+    $type = ($max == 1) ? 'radios' : 'checkboxes';
+    $required = !($min == 0);
 
     $options = array();
     if (($type == 'radios') && !$required) $options[null] = t('None');
 
+    if ($max == 1) {
+      $description = t("Please select one item.");
+    } else {
+      if ($min == $max) {
+        if (empty($min)) {
+          $description = t("Please select any items that apply.");
+        } else {
+          $description = t("Please select @n items.", array('@n' => $min));
+        }
+      } else {
+        if (empty($min)) {
+          $description = t("Please select up to @max items.", array('@max' => $max));
+        } else if (empty($max)) {
+          $description = t("Please select @min or more items.", array('@min' => $min));
+        } else {
+          $description = t("Please select @min to @max items.", array('@min' => $min, '@max' => $max));
+        }
+      }
+    }
+
     foreach($terms as $term) {
       $options[$term->tid] = $term->name;
+    }
+
+    // Define default value(s)
+    $result = db_select('clarity_value_term', 't')
+              ->fields('t')
+              ->condition('assignment_id', $assignment_id, '=')
+              ->condition('field_index', $index, '=')
+              ->execute();
+    $default = array();
+    while ($record = $result->fetchAssoc()) {
+      $default[] = $record['term_id'];
+    }
+    if ($type == 'radios') {
+      $default = isset($default[0]) ? $default[0] : null;
     }
 
     $fields['terms'] = array(
       '#type' => $type,
       '#title' => t($taxonomy->name),
       '#options' => $options,
-      '#description' => t('Select terms'),
+      '#default_value' => $default,
+      '#description' => $description,
       '#required' => $required
+    );
+
+    $fields['config'] = array(
+      '#type' => 'value',
+      '#value' => $stat->field_datasources['und'][$delta]['config']
     );
 
     return $fields;
@@ -84,9 +126,62 @@ class ClarityMultiTermDatasource implements DatasourceIfc, DatasourceStatIfc {
   }
 
 
-  public static function validateDataFormFields($field_id_prefix, $field_values, $index) { }
+  public static function validateDataFormFields($field_id_prefix, $field_values, $index) {
 
-  public static function submitDataFormFields($field_values, $assignment_id, $index) { }
+    if (is_array($field_values['terms'])) {
+
+      $count = 0;
+      foreach($field_values['terms'] as $value) {
+        if ($value) $count++;
+      }
+
+      $min = $field_values['config']['minimum'];
+      $max = $field_values['config']['maximum'];
+
+      if (($min == $max) && ($count != $min)) {
+        if (empty($min)) return; // No requirements
+        form_set_error('terms', t('Please select @n items.', array('@n' => $min)));
+      } else if ($count < $min) {
+        form_set_error('terms', t('Please select more items.'));
+      } else if ($count > $max) {
+        form_set_error('terms', t('Please select fewer items.'));
+      }
+
+    }
+
+  }
+
+
+  private static function submitDataFormValue($aid, $index, $tid) {
+
+    db_query('REPLACE INTO {clarity_value_term} (assignment_id, term_id, field_index) VALUES (:aid, :term, :index)',
+             array(':aid' => $aid, ':term' => $tid, ':index' => $index));
+
+  }
+
+
+  public static function submitDataFormFields($field_values, $assignment_id, $index) {
+
+    // Clear out previous values
+    db_delete('clarity_value_term')
+      ->condition('assignment_id', $assignment_id)
+      ->condition('field_index', $index)
+      ->execute();
+
+    if (is_numeric($field_values['terms'])) {
+      self::submitDataFormValue($assignment_id, $index, $field_values['terms']);
+      return;
+    }
+
+    if (is_array($field_values['terms'])) {
+      foreach ($field_values['terms'] as $tid) {
+        if ($tid) {
+          self::submitDataFormValue($assignment_id, $index, $tid);
+        }
+      }
+    }
+
+  }
 
   public static function getDataType() {
     return 'term';
