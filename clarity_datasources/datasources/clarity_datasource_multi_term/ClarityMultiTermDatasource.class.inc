@@ -69,6 +69,7 @@ class ClarityMultiTermDatasource implements DatasourceIfc, DatasourceStatIfc {
     $options = array();
     if (($type == 'radios') && !$required) $options[null] = t('None');
 
+    // Figure out how to express the requirements
     if ($max == 1) {
       $description = t("Please select one item.");
     } else {
@@ -152,6 +153,9 @@ class ClarityMultiTermDatasource implements DatasourceIfc, DatasourceStatIfc {
   }
 
 
+  /**
+   * Helper function to add values to the database
+   */
   private static function submitDataFormValue($aid, $index, $tid) {
 
     db_query('REPLACE INTO {clarity_value_term} (assignment_id, term_id, field_index) VALUES (:aid, :term, :index)',
@@ -188,9 +192,15 @@ class ClarityMultiTermDatasource implements DatasourceIfc, DatasourceStatIfc {
   }
 
 
+  /**
+   * @todo Figure out how this should work for term data
+   */
   public static function getData($stat_nid, $options = array()) { return array(); }
 
 
+  /**
+   * @todo Figure out how this should work for term data
+   */
   public static function getLatestValueContent($stat_nid, $index) { return 0; }
 
 
@@ -201,67 +211,26 @@ class ClarityMultiTermDatasource implements DatasourceIfc, DatasourceStatIfc {
   }
 
 
-  public static function getDataTableColumnContent($stat_nid, $index, $options = array()) { return null; }
+  public static function getDataTableColumnContent($stat_nid, $index, $options = array()) {
 
+    $result = db_select('clarity_value_term', 't')
+              ->fields('t')
+              ->condition('field_index', $index, '=')
+              ->execute();
 
-  /*
-  public static function validateDataForm($form, $form_state) {
-
-    if (!isset($form_state['values']['terms'])) {
-      form_set_error('terms', t('Please select a value'));
+    $results = array();
+    while ($record = $result->fetchAssoc()) {
+      $term = taxonomy_term_load($record['term_id']);
+      $results[$record['assignment_id']][] = $term->name;
     }
+
+    foreach($results as $aid => &$result) {
+      $result = implode(', ', $result);
+    }
+
+    return $results;
 
   }
-
-
-  public static function submitDataForm($form, $form_state) {
-
-    try {
-      $result = db_insert('clarity_multi_term')->fields(array(
-        'aid'      => $form_state['values']['assignment']->aid,
-        'value'         => $term,
-      ))->execute();
-
-    } catch (PDOException $e) {
-
-      watchdog_exception('data_submission', $e);
-      if (($e->errorInfo[0] == 23000) && $e->errorInfo[1] == 1062) {
-        drupal_set_message(t('An entry for this assignment already exists'), 'warning');
-      } else {
-        drupal_set_message(t('The system was unable to record this value'), 'warning');
-      }
-
-    }
-
-  }*/
-
-/*
-  public static function getData($stat_nid, $options = array()) {
-
-    $q = 'SELECT * FROM {clarity_multi_term} WHERE stat_nid = :stat';
-    $args = array(':stat' => $stat_nid);
-
-    if (isset($options['uid'])) {
-      $q .= ' AND uid = :uid';
-      $args[':uid'] = $options['uid'];
-    }
-
-    $result = db_query($q, $args);
-    $data = array();
-    foreach($result as $record) {
-      $d = new Data($record->uid, $record->timestamp, $record->value);
-      $d->modified_time = $record->modified_time;
-      $d->category = $record->category;
-      $d->annotation = $record->annotation;
-      $data[] = $d;
-    }
-
-    return $data;
-
-  }
- */
-
-
 
 
   /*
