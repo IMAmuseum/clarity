@@ -110,7 +110,7 @@ class ClarityMultiTermDatasource implements DatasourceIfc, DatasourceStatIfc {
 
     $fields['terms'] = array(
       '#type' => $type,
-      '#title' => t($taxonomy->name),
+      //'#title' => t($taxonomy->name),
       '#options' => $options,
       '#default_value' => $default,
       '#description' => $description,
