@@ -49,6 +49,11 @@ class ClarityFloatDatasource implements DatasourceIfc, DatasourceStatIfc {
       '#default_value' => $default
     );
 
+    $fields['config'] = array(
+      '#type' => 'value',
+      '#value' => $stat->field_datasources['und'][$delta]['config']
+    );
+
     return $fields;
 
   }
@@ -58,6 +63,18 @@ class ClarityFloatDatasource implements DatasourceIfc, DatasourceStatIfc {
 
     if (!is_numeric($field_values['single-value'])) {
         form_set_error($field_id_prefix . 'single-value', t('Please enter a numeric value'));
+    }
+
+    if (!empty($field_values['config']['minimum']) &&
+        ($field_values['single-value'] < $field_values['config']['minimum'])) {
+      form_set_error('single-value', t('Please enter a value greater than or equal to @n',
+                     array('@n' => $field_values['config']['minimum'])));
+    }
+
+    if (!empty($field_values['config']['maximum']) &&
+        ($field_values['single-value'] > $field_values['config']['maximum'])) {
+      form_set_error('single-value', t('Please enter a value less than or equal to @n',
+                     array('@n' => $field_values['config']['maximum'])));
     }
 
   }
@@ -94,12 +111,33 @@ class ClarityFloatDatasource implements DatasourceIfc, DatasourceStatIfc {
       '#description' => 'Special formatting for this value'
     );
 
+    $fields['minimum'] = array(
+      '#type' => 'textfield',
+      '#title' => 'Minimum value',
+      '#description' => 'The minimum allowed value',
+    );
+
+    $fields['maximum'] = array(
+      '#type' => 'textfield',
+      '#title' => 'Maximum value',
+      '#description' => 'The maximum allowed value',
+    );
+
     return $fields;
 
   }
 
 
-  public static function validateStatConfigForm($values) { }
+  public static function validateStatConfigForm($values) {
+
+      if (!is_numeric($values['minimum'])) {
+        form_set_error('minimum', t('Please enter a number for minimum'));
+      }
+      if (!is_numeric($values['maximum'])) {
+        form_set_error('maximum', t('Please enter a number for maximum'));
+      }
+
+  }
 
 
   public static function getDataType() {
