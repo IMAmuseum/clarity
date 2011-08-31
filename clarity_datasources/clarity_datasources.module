@@ -175,6 +175,18 @@ function clarity_datasources_submit_data_form($form, &$form_state, $assignment_i
     '#value' => $assignment
   );
 
+  $form['stat-title'] = array(
+    '#type' => 'item',
+    '#markup' => "<h2>{$stat->title}</h2>",
+    '#weight' => '-2'
+  );
+
+  $form['stat-body'] = array(
+    '#type' => 'item',
+    '#markup' => $stat->body['und'][0]['value'],
+    '#weight' => '-1'
+  );
+
   $form['datasources'] = array('#tree' => 'true');
 
   foreach ($stat->field_datasources['und'] as $delta => $ds) {
