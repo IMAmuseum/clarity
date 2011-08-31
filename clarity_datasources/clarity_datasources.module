@@ -209,6 +209,14 @@ function clarity_datasources_submit_data_form($form, &$form_state, $assignment_i
 
     $form['datasources'][$ds['index']]['data_fields'] = call_user_func_array($ds_info->class . '::getDataFormFields', array($stat, $ds['index'], $assignment_id));
 
+    if (!empty($ds['config']['instruction'])) {
+      $form['datasources'][$ds['index']]['instruction'] = array(
+        '#type' => 'item',
+        '#markup' => $ds['config']['instruction'],
+        '#weight' => -1
+      );
+    }
+
   }
 
   $form['submit'] = array(
@@ -315,6 +323,12 @@ function clarity_datasources_stat_config_form($form, &$form_state, $stat) {
       $form["datasource-$index"]['#title'] .= $info->label;
 
       $form["datasource-$index"]['#tree'] = true;
+
+      $form["datasource-$index"]['instruction'] = array(
+        '#type' => 'textarea',
+        '#description' => t('Instructions for this field'),
+        '#weight' => -1
+      );
 
       if (isset($config) && ($config != null)) {
         foreach($config as $key => $val) {
