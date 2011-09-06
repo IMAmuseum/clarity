@@ -31,12 +31,27 @@ class ClarityTextDatasource implements DatasourceIfc, DatasourceStatIfc {
       '#default_value' => $default
     );
 
+    $fields['config'] = array(
+      '#type' => 'value',
+      '#value' => $stat->field_datasources['und'][$delta]['config']
+    );
+
     return $fields;
 
   }
 
 
-  public static function validateDataFormFields($field_id_prefix, $field_values, $index) { }
+  public static function validateDataFormFields($field_id_prefix, $field_values, $index) {
+
+    if (!empty($field_values['config']['regex'])) {
+
+      if (!preg_match($field_values['config']['regex'], $field_values['text-value'])) {
+        form_set_error('text-value', $field_values['config']['regex-message']);
+      }
+
+    }
+
+  }
 
 
   public static function submitDataFormFields($field_values, $assignment_id, $index) {
@@ -54,8 +69,22 @@ class ClarityTextDatasource implements DatasourceIfc, DatasourceStatIfc {
     $fields['description'] = array(
       '#type'     => 'textfield',
       '#title'    => 'Description',
-      '#description'  => 'Enter the description for the field',
+      '#description'  => t('Enter the description for the field'),
       '#required'   => TRUE
+    );
+
+    $fields['regex'] = array(
+      '#type' => 'textfield',
+      '#title' => 'Regex validator',
+      '#description' => t('A regular expression to validate against'),
+      '#required' => false
+    );
+
+    $fields['regex-message'] = array(
+      '#type' => 'textfield',
+      '#title' => 'Regex validator message',
+      '#description' => t('A message to display when the value does not validate'),
+      '#required' => false
     );
 
     return $fields;
@@ -63,7 +92,15 @@ class ClarityTextDatasource implements DatasourceIfc, DatasourceStatIfc {
   }
 
 
-  public static function validateStatConfigForm($values) { }
+  public static function validateStatConfigForm($values) {
+
+    try {
+      preg_match($values['regex'], '');
+    } catch (Exception $e) {
+      form_set_error('regex', 'Regular expression error');
+    }
+
+  }
 
 
   public static function getDataType() {
