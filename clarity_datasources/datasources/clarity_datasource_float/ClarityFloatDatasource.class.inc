@@ -211,7 +211,10 @@ class ClarityFloatDatasource implements DatasourceIfc, DatasourceStatIfc {
 
     $stat = node_load($stat_nid);
     $delta = _clarity_datasources_delta_for_index($stat, $index);
-    $format = $stat->field_datasources['und'][$delta]['config']['formatting'];
+    $format = null;
+    if (isset($stat->field_datasources['und'][$delta]['config']['formatting'])) {
+      $format = $stat->field_datasources['und'][$delta]['config']['formatting'];
+    };
 
     $query = db_select('clarity_value_float', 'v');
     $query->join('assignment', 'a', 'v.assignment_id = a.aid');
