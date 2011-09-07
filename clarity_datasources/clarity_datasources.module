@@ -58,6 +58,18 @@ function clarity_datasources_menu() {
 
 
 /**
+ * hook_admin_paths
+ */
+function clarity_datasources_admin_paths() {
+
+  return array(
+    'submit-data/*' => true
+  );
+
+}
+
+
+/**
  * Only show the data tab on statistic nodes for users who have access
  * @param unknown_type $node
  * @param unknown_type $access
@@ -283,13 +295,11 @@ function clarity_datasources_submit_data_form_submit($form, &$form_state) {
     // Tell the assignment module that this assignment is complete
     module_invoke('assignment', 'data_submitted', $form_state['values']['assignment']->aid);
     global $user;
-    $form_state['redirect'] = "user/{$user->uid}/assignments";
   } else {
     db_update('assignment')
     ->condition('aid', $form_state['values']['assignment']->aid, '=')
     ->fields(array('modified_date' => mktime()))
     ->execute();
-    $form_state['redirect'] = "node/{$form_state['values']['assignment']->sid}/assignments";
   }
 
 
