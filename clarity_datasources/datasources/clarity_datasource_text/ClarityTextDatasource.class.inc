@@ -76,7 +76,8 @@ class ClarityTextDatasource implements DatasourceIfc, DatasourceStatIfc {
     $fields['regex'] = array(
       '#type' => 'textfield',
       '#title' => 'Regex validator',
-      '#description' => t('A regular expression to validate against'),
+      '#description' => t('A !regex-link to validate against.',
+                        array('!regex-link' => l(t('regular expression'), 'http://www.regular-expressions.info/php.html'))),
       '#required' => false
     );
 
@@ -94,10 +95,12 @@ class ClarityTextDatasource implements DatasourceIfc, DatasourceStatIfc {
 
   public static function validateStatConfigForm($fieldset_id_prefix, $field_values, $index) {
 
-    try {
-      preg_match($field_values['regex'], '');
-    } catch (Exception $e) {
-      form_set_error($fieldset_id_prefix . 'regex', 'Regular expression error');
+    if (!empty($field_values['regex'])) {
+      try {
+        preg_match($field_values['regex'], '');
+      } catch (Exception $e) {
+        form_set_error($fieldset_id_prefix . 'regex', 'Regular expression error');
+      }
     }
 
   }
