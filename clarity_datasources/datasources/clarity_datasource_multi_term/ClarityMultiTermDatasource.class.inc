@@ -36,18 +36,18 @@ class ClarityMultiTermDatasource implements DatasourceIfc, DatasourceStatIfc {
   }
 
 
-  public static function validateStatConfigForm($values) {
+  public static function validateStatConfigForm($fieldset_id_prefix, $values, $index) {
 
     if (!empty($values['minimum']) && (!is_numeric($values['minimum']) || ($values['minimum'] < 0))) {
-      form_set_error('minimum', t('Minimum must be a non-negative number'));
+      form_set_error($fieldset_id_prefix . 'minimum', t('Minimum must be a non-negative number'));
     }
 
     if (!empty($values['maximum']) && (!is_numeric($values['maximum']) || ($values['maximum'] < 0))) {
-      form_set_error('maximum', t('Maximum must be a non-negative number'));
+      form_set_error($fieldset_id_prefix . 'maximum', t('Maximum must be a non-negative number'));
     }
 
     if (!empty($values['maximum']) && ($values['minimum'] > $values['maximum'])) {
-      form_set_error('maximum', t('Maximum is less than minimum'));
+      form_set_error($fieldset_id_prefix . 'maximum', t('Maximum is less than minimum'));
     }
 
   }
@@ -141,11 +141,11 @@ class ClarityMultiTermDatasource implements DatasourceIfc, DatasourceStatIfc {
 
       if (($min == $max) && ($count != $min)) {
         if (empty($min)) return; // No requirements
-        form_set_error('terms', t('Please select @n items.', array('@n' => $min)));
+        form_set_error($field_id_prefix . 'terms', t('Please select @n items.', array('@n' => $min)));
       } else if ($count < $min) {
-        form_set_error('terms', t('Please select more items.'));
+        form_set_error($field_id_prefix . 'terms', t('Please select more items.'));
       } else if ($count > $max) {
-        form_set_error('terms', t('Please select fewer items.'));
+        form_set_error($field_id_prefix . 'terms', t('Please select fewer items.'));
       }
 
     }

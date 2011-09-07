@@ -46,7 +46,7 @@ class ClarityTextDatasource implements DatasourceIfc, DatasourceStatIfc {
     if (!empty($field_values['config']['regex'])) {
 
       if (!preg_match($field_values['config']['regex'], $field_values['text-value'])) {
-        form_set_error('text-value', $field_values['config']['regex-message']);
+        form_set_error($field_id_prefix . 'text-value', $field_values['config']['regex-message']);
       }
 
     }
@@ -92,12 +92,12 @@ class ClarityTextDatasource implements DatasourceIfc, DatasourceStatIfc {
   }
 
 
-  public static function validateStatConfigForm($values) {
+  public static function validateStatConfigForm($fieldset_id_prefix, $field_values, $index) {
 
     try {
-      preg_match($values['regex'], '');
+      preg_match($field_values['regex'], '');
     } catch (Exception $e) {
-      form_set_error('regex', 'Regular expression error');
+      form_set_error($fieldset_id_prefix . 'regex', 'Regular expression error');
     }
 
   }

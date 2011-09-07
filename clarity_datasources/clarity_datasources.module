@@ -370,7 +370,9 @@ function clarity_datasources_stat_config_form_validate($form, &$form_state) {
     _clarity_datasources_call_if_implemented($info->class,
                                              'DatasourceStatIfc',
                                              'validateStatConfigForm',
-                                             array($form_state['values']['datasource-' . $index]));
+                                             array("datasource-$index][",
+                                                   $form_state['values']['datasource-' . $index],
+                                                   $index));
 
     $validated_classes[] = $info->class;
 

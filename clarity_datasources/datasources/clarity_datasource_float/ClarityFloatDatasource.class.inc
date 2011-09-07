@@ -128,13 +128,13 @@ class ClarityFloatDatasource implements DatasourceIfc, DatasourceStatIfc {
   }
 
 
-  public static function validateStatConfigForm($values) {
+  public static function validateStatConfigForm($fieldset_id_prefix, $field_values, $index) {
 
-      if (!is_numeric($values['minimum'])) {
-        form_set_error('minimum', t('Please enter a number for minimum'));
+      if (!is_numeric($field_values['minimum'])) {
+        form_set_error($fieldset_id_prefix . 'minimum', t('Please enter a number for minimum'));
       }
-      if (!is_numeric($values['maximum'])) {
-        form_set_error('maximum', t('Please enter a number for maximum'));
+      if (!is_numeric($field_values['maximum'])) {
+        form_set_error($fieldset_id_prefix . 'maximum', t('Please enter a number for maximum'));
       }
 
   }
