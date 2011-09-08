@@ -18,8 +18,12 @@ class ClarityFloatDatasource implements DatasourceIfc, DatasourceStatIfc {
         return '$' . number_format($value, 2);
         break;
 
+      case 'sci':
+        return sprintf('%.3e', $value);
+        break;
+
       default:
-        return $value;
+        return number_format($value);
 
     }
 
@@ -102,7 +106,8 @@ class ClarityFloatDatasource implements DatasourceIfc, DatasourceStatIfc {
     $format_options = array(
       null => 'None',
       'dollars' => '$1,000',
-      'money' => '$1,000.00'
+      'money' => '$1,000.00',
+      'sci' => '1.000e+3'
     );
 
     $fields['formatting'] = array(
