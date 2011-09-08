@@ -31,6 +31,14 @@ class ClarityMultiTermDatasource implements DatasourceIfc, DatasourceStatIfc {
       '#required' => false
     );
 
+    $fields['select'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Drop-down'),
+      '#default_value' => false,
+      '#description' => t('Use a drop-down instead of radio or checkboxes'),
+      '#required' => false
+    );
+
     return $fields;
 
   }
@@ -63,7 +71,11 @@ class ClarityMultiTermDatasource implements DatasourceIfc, DatasourceStatIfc {
     $min = $stat->field_datasources['und'][$delta]['config']['minimum'];
     $max = $stat->field_datasources['und'][$delta]['config']['maximum'];
 
-    $type = ($max == 1) ? 'radios' : 'checkboxes';
+    if ($stat->field_datasources['und'][$delta]['config']['select']) {
+      $type = 'select';
+    } else {
+      $type = ($max == 1) ? 'radios' : 'checkboxes';
+    }
     $required = !($min == 0);
 
     $options = array();
@@ -116,6 +128,10 @@ class ClarityMultiTermDatasource implements DatasourceIfc, DatasourceStatIfc {
       '#description' => $description,
       '#required' => $required
     );
+
+    if (($type == 'select') && ($max > 1)) {
+      $fields['terms']['#multiple'] = true;
+    }
 
     $fields['config'] = array(
       '#type' => 'value',
