@@ -305,6 +305,8 @@ function clarity_datasources_submit_data_form_submit($form, &$form_state) {
     ->execute();
   }
 
+  // This doesn't work? overlay_close_dialog();
+  drupal_set_message(t('Data recorded.'));
 
 }
 
