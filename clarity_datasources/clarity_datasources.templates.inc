@@ -81,7 +81,10 @@ function clarity_datasources_preprocess_stat_data_table_row(&$vars) {
 
   $vars['columns']['assignment_edit'] = array(
     'classes' => 'w1',
-    'content' => l(t('Edit'), "node/{$vars['assignment']->sid}/assignments/{$vars['assignment']->aid}/edit")
+    'content' => l(t('Edit'),
+                   "node/{$vars['assignment']->sid}/assignments/{$vars['assignment']->aid}/edit",
+                   array('attributes' => array('title' => t('Edit assignment')))
+                   )
   );
 
   foreach ($vars['ds_column_content'] as $index => $column) {
@@ -95,7 +98,10 @@ function clarity_datasources_preprocess_stat_data_table_row(&$vars) {
 
   $vars['columns']['fields_edit'] = array(
     'classes' => 'w1',
-    'content' => l(t('Edit'), 'submit-data/' . $vars['assignment']->aid)
+    'content' => l(t('Edit'),
+                   'submit-data/' . $vars['assignment']->aid,
+                   array('attributes' => array('title' => t('Edit data')))
+                   )
   );
 
 }

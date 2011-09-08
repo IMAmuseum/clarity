@@ -1,15 +1,11 @@
 
-.stat-data-table .header .column {
-	background: #ddd;
+.stat-data-table .rows {
+  border-top: 1px solid black;
 }
 
 .stat-data-table .header .column {
 	float: left;
 	text-align: center;
-}
-
-.stat-data-table .header .assignment.column {
-  background: #cacaca !important;  
 }
 
 .stat-data-table .row .column {

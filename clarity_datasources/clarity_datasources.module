@@ -63,7 +63,10 @@ function clarity_datasources_menu() {
 function clarity_datasources_admin_paths() {
 
   return array(
-    'submit-data/*' => true
+    'submit-data/*' => true,
+    'node/*/assignments' => true,
+    'node/*/assignments/*' => true,
+    'node/*/datasource-config' => true
   );
 
 }
