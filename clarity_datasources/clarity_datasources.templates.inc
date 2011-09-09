@@ -104,4 +104,11 @@ function clarity_datasources_preprocess_stat_data_table_row(&$vars) {
                    )
   );
 
+  $flag = assignment_get_flag($vars['assignment']->aid);
+
+  if (isset($flag)) {
+    $vars['columns']['fields_edit']['content'] .= " <span class='flag' title='{$flag['comment']}'>*</span>";
+  }
+
+
 }
