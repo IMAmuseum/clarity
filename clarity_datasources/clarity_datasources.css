@@ -44,6 +44,14 @@
 }
 
 
+#edit-assignment-flag {
+  border: 1px red solid;
+  padding: 2px;
+}
+
+#edit-flag-assignment {
+  background: #ee8; 
+}
 
 
 .clear {

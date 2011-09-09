@@ -62,7 +62,38 @@ function assignment_schema() {
       		)   
 		),
 		'primary key' => array('aid'),
-	);
+	);	
 	
 	return $schema;
+}
+
+/**
+ * Update to add the assignment_flag table
+ */ 
+function assignment_update_7100(&$sandbox) {
+
+  $schema = array(
+    'description' => 'Table for assignment flags',
+    'fields' => array(
+      'assignment_id' => array(
+        'description' => 'The id of the flagged assignment',
+        'type'      => 'int',
+        'unsigned'    => TRUE,
+        'not null'    => TRUE,
+      ),
+      'comment' => array(
+        'description'   => 'A comment for the flag',      
+        'type' => 'text',
+        'not null' => FALSE,
+        'size' => 'big',      
+      )
+    ),
+    'primary key' => array('assignment_id'),
+    'foreign keys' => array(
+      'assignment_id' => array('assignment' => 'aid'),
+    ),        
+  );
+  
+  return db_create_table('assignment_flag', $schema);  
+  
 }

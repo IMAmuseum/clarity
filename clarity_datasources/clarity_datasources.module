@@ -177,6 +177,9 @@ function clarity_datasources_node_view($node, $view_mode, $langcode) {
  */
 function clarity_datasources_submit_data_form($form, &$form_state, $assignment_id) {
 
+  drupal_add_css(drupal_get_path('module', 'clarity_datasources') . '/clarity_datasources.css');
+  drupal_add_js(drupal_get_path('module', 'clarity_datasources') . '/clarity_datasources.js');
+
   $assignment = assignment_load($assignment_id);
 
   $stat = node_load($assignment->sid);
@@ -202,6 +205,18 @@ function clarity_datasources_submit_data_form($form, &$form_state, $assignment_i
       '#markup' => $stat->body['und'][0]['value'],
       '#weight' => '-1'
     );
+  }
+
+  $flag = assignment_get_flag($assignment_id);
+  if (isset($flag)) {
+    $form['assignment_flag'] = array(
+      '#type' => 'item',
+      '#title' => t('This assignment has been flagged'),
+      '#weight' => '0'
+    );
+    if (isset($flag['comment'])) {
+      $form['assignment_flag']['#markup'] = "<div class='flag'>{$flag['comment']}</div>";
+    }
   }
 
   $form['datasources'] = array('#tree' => 'true');
@@ -249,6 +264,12 @@ function clarity_datasources_submit_data_form($form, &$form_state, $assignment_i
     '#value' => 'Submit'
   );
 
+  if (user_access('administer nodes')) {
+    $form['flag_assignment'] = array(
+      '#type' => 'button',
+      '#value' => t('Flag')
+    );
+  }
 
   return $form;
 

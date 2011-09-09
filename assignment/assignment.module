@@ -124,14 +124,20 @@
 		);
 
 		$items['admin/config/system/assignment'] = array(
-        	'title' 			=> 'Assignment settings',
-        	'description' 		=> 'Configure the assignment module',
-        	'page callback'	 	=> 'drupal_get_form',
-			'page arguments'	=> array('assignment_admin'),
-        	'access arguments' 	=> array('access administration pages'),
-        	'type' 				=> MENU_NORMAL_ITEM,
-			'file'				=> 'assignment.admin.inc'
-    	);
+       'title' 			=> 'Assignment settings',
+       'description' 		=> 'Configure the assignment module',
+       'page callback'	 	=> 'drupal_get_form',
+			 'page arguments'	=> array('assignment_admin'),
+       'access arguments' 	=> array('access administration pages'),
+       'type' 				=> MENU_NORMAL_ITEM,
+			 'file'				=> 'assignment.admin.inc'
+    );
+
+    $items['ajax/flag-assignment'] = array(
+      'page callback'     => 'assignment_flag_set_ajax',
+      'access arguments'  => array('administer nodes'),
+      'type'              => MENU_CALLBACK,
+    );
 
 	 	return $items;
 	}
@@ -448,3 +454,59 @@ function assignment_data_submitted($assignment_id) {
 
 }
 
+
+/**
+ * Get the flag for an assignment if one exists
+ * @param $assignment_id
+ */
+function assignment_get_flag($assignment_id) {
+
+  $flag = db_select('assignment_flag', 'af')
+    ->fields('af')
+    ->condition('assignment_id', $assignment_id)
+    ->execute()->fetchAssoc();
+
+  return ($flag) ? $flag : null;
+
+}
+
+
+/**
+ * Function to set an assignment flag via ajax
+ */
+function assignment_flag_set_ajax() {
+
+  if (!isset($_REQUEST['assignment_id'])) {
+    print json_encode(array('error' => 'assignment_id required')); exit();
+  }
+
+  $flag = assignment_get_flag($_REQUEST['assignment_id']);
+
+  if (isset($flag)) {
+
+    // Update the flag
+    db_update('assignment_flag')
+      ->condition('assignment_id', $_REQUEST['assignment_id'])
+      ->fields(array('comment' => isset($_REQUEST['comment']) ? $_REQUEST['comment'] : null))
+      ->execute();
+
+  } else {
+
+    // Check if this assignment exists
+    $assignment = assignment_load($_REQUEST['assignment_id']);
+    if (!$assignment) {
+      print json_encode(array('error' => "Assignment {$_REQUEST['assignment_id']} does not exist")); exit();
+    }
+
+    // Insert a new flag
+    db_insert('assignment_flag')
+      ->fields(array(
+        'assignment_id' => $_REQUEST['assignment_id'],
+        'comment' => isset($_REQUEST['comment']) ? $_REQUEST['comment'] : null
+      ))->execute();
+
+  }
+
+  print json_encode(array('success' => true)); exit();
+
+}
