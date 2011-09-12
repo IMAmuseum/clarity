@@ -71,13 +71,13 @@ class ClarityFloatDatasource implements DatasourceIfc, DatasourceStatIfc {
 
     if (!empty($field_values['config']['minimum']) &&
         ($field_values['single-value'] < $field_values['config']['minimum'])) {
-      form_set_error('single-value', t('Please enter a value greater than or equal to @n',
+      form_set_error($field_id_prefix . 'single-value', t('Please enter a value greater than or equal to @n',
                      array('@n' => $field_values['config']['minimum'])));
     }
 
     if (!empty($field_values['config']['maximum']) &&
         ($field_values['single-value'] > $field_values['config']['maximum'])) {
-      form_set_error('single-value', t('Please enter a value less than or equal to @n',
+      form_set_error($field_id_prefix . 'single-value', t('Please enter a value less than or equal to @n',
                      array('@n' => $field_values['config']['maximum'])));
     }
 
