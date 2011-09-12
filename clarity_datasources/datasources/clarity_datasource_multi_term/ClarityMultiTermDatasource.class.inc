@@ -71,7 +71,8 @@ class ClarityMultiTermDatasource implements DatasourceIfc, DatasourceStatIfc {
     $min = $stat->field_datasources['und'][$delta]['config']['minimum'];
     $max = $stat->field_datasources['und'][$delta]['config']['maximum'];
 
-    if ($stat->field_datasources['und'][$delta]['config']['select']) {
+    if (isset($stat->field_datasources['und'][$delta]['config']['select']) &&
+              $stat->field_datasources['und'][$delta]['config']['select']) {
       $type = 'select';
     } else {
       $type = ($max == 1) ? 'radios' : 'checkboxes';
