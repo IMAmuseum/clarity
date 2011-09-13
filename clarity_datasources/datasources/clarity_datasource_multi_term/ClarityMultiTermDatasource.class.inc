@@ -80,7 +80,9 @@ class ClarityMultiTermDatasource implements DatasourceIfc, DatasourceStatIfc {
     $required = !($min == 0);
 
     $options = array();
-    if (($type == 'radios') && !$required) $options[null] = t('None');
+    if (($type != 'checkboxes') && !$required) {
+      $options[null] = t('-None-');
+    }
 
     // Figure out how to express the requirements
     if ($max == 1) {
