@@ -31,6 +31,11 @@ class ClarityTextDatasource implements DatasourceIfc, DatasourceStatIfc {
       '#default_value' => $default
     );
 
+    if (isset($stat->field_datasources['und'][$delta]['config']['textarea']) &&
+        $stat->field_datasources['und'][$delta]['config']['textarea']) {
+      $fields['text-value']['#type'] = 'textarea';
+    }
+
     $fields['config'] = array(
       '#type' => 'value',
       '#value' => $stat->field_datasources['und'][$delta]['config']
@@ -71,6 +76,13 @@ class ClarityTextDatasource implements DatasourceIfc, DatasourceStatIfc {
       '#title'    => 'Description',
       '#description'  => t('Enter the description for the field'),
       '#required'   => TRUE
+    );
+
+    $fields['textarea'] = array(
+      '#type'     => 'checkbox',
+      '#title'    => 'Text area',
+      '#description'  => t('Use a text area widget to allow for longer input'),
+      '#required'   => false
     );
 
     $fields['regex'] = array(
