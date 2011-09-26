@@ -43,3 +43,28 @@
 	width: 250px;
 }
 
+.stat-data-table span.flag {
+  display: block;
+  float: right; 
+  margin: 3px 10px 3px 0px;
+  width: 16px;
+  height: 16px;
+  text-indent: 999px;
+  overflow: hidden;
+  background: url(images/flag_yellow.png);
+}
+
+#edit-assignment-flag {
+  border: 1px red solid;
+  padding: 2px;
+}
+
+#edit-flag-assignment {
+  background: #ee8; 
+}
+
+/*** GENERAL ***/
+
+.clear {
+  clear: both;  
+}
