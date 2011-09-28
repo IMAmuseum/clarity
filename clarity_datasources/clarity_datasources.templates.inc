@@ -65,22 +65,22 @@ function clarity_datasources_preprocess_stat_data_table_row(&$vars) {
   $vars['columns'] = array();
 
   $vars['columns']['assignment_user'] = array(
-    'classes' => 'w1',
+    'classes' => '',
     'content' => l(user_load($vars['assignment']->uid)->name, 'user/'. $vars['assignment']->uid)
   );
 
   $vars['columns']['assignment_date'] = array(
-    'classes' => 'w2',
+    'classes' => '',
     'content' => date('m/d/Y', $vars['assignment']->expire_date),
   );
 
   $vars['columns']['assignment_modified'] = array(
-    'classes' => 'w2',
+    'classes' => '',
     'content' => isset($vars['assignment']->modified_date) ? date('m/d/Y', $vars['assignment']->modified_date) : '&nbsp;',
   );
 
   $vars['columns']['assignment_edit'] = array(
-    'classes' => 'w1',
+    'classes' => '',
     'content' => l(t('Edit'),
                    "node/{$vars['assignment']->sid}/assignments/{$vars['assignment']->aid}/edit",
                    array('attributes' => array('title' => t('Edit assignment')))
@@ -90,14 +90,14 @@ function clarity_datasources_preprocess_stat_data_table_row(&$vars) {
   foreach ($vars['ds_column_content'] as $index => $column) {
     foreach($column as $subcolumn) {
       $vars['columns']['ds-' . $index] = array(
-        'classes' => 'w2',
+        'classes' => '',
         'content' => isset($subcolumn) ? $subcolumn : '&nbsp;'
       );
     }
   }
 
   $vars['columns']['fields_edit'] = array(
-    'classes' => 'w1',
+    'classes' => '',
     'content' => l(t('Edit'),
                    'submit-data/' . $vars['assignment']->aid,
                    array('attributes' => array('title' => t('Edit data')))
@@ -107,7 +107,7 @@ function clarity_datasources_preprocess_stat_data_table_row(&$vars) {
   $flag = assignment_get_flag($vars['assignment']->aid);
   $flag_content = (isset($flag)) ? "<span class='flag' title='{$flag['comment']}'>*</span>" : '&nbsp;';
   $vars['columns']['flag'] = array(
-    'classes' => 'w1',
+    'classes' => '',
     'content' => $flag_content
   );
 

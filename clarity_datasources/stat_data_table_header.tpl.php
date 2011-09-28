@@ -1,21 +1,22 @@
-<div class='header'>
-<div class='assignment column w6'>
-<div class='w6'>Assignment</div>
-<div class='clear'></div>
-<div class='assignment column w1'>User</div>
-<div class='assignment column w2'>Date</div>
-<div class='assignment column w2'>Date Modified</div>
-<div class='assignment column w1'>&nbsp;</div>
-</div>
-<?php foreach($ds_header_labels as $labels): ?>
-<div class='column w<?=count($labels['sublabels'])*2?>'>
-<div class='w<?=count($labels['sublabels'])*2?>'><?=$labels['label']?></div>
-<div class='clear'></div>
+<colgroup span='4'></colgroup>
+<colgroup span='<?=count($ds_header_labels);?>'></colgroup>
+<tr class='header-top'>
+<th colspan='4'>Assignment</th>
+<?php foreach($ds_header_labels as $labels):?>
+<th colspan='<?php count($labels['sublabels'])?>'><?=$labels['label']?></th>
+<?php endforeach; ?>
+<th colspan='2'></th>
+</tr>
+<tr class='header-bottom'>
+<th class='assignment'>User</th>
+<th class='assignment'>Date</th>
+<th class='assignment'>Date Modified</th>
+<th class='assignment'>&nbsp;</th>
+<?php foreach($ds_header_labels as $labels):?>
 <?php foreach($labels['sublabels'] as $label): ?>
-<div class='column w2'><?=$label?></div>
+<th><?=$label?></th>
 <?php endforeach; ?>
-</div>
 <?php endforeach; ?>
-<div class='column w1'>&nbsp;</div>
-<div class='column w1'>&nbsp;</div>
-</div>
+<th>&nbsp;</th>
+<th>&nbsp;</th>
+</tr>

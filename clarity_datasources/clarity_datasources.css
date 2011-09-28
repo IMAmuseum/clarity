@@ -1,46 +1,6 @@
 
-.stat-data-table .rows {
-  border-top: 1px solid black;
-}
-
-.stat-data-table .header .column {
-	float: left;
-	text-align: center;
-}
-
-.stat-data-table .row .column {
-  float: left;
-  text-align: center;
-}
-
-.stat-data-table .row {
-  height: 1.5em;	
-  margin: 0px;
-  padding: 2px;
-}
-
-.stat-data-table .row.even {
-  background: #f8f8f8;	
-}
-
-.stat-data-table .w1 {
-  width: 50px;
-}
-
-.stat-data-table .w2 {
-  width: 100px;	
-}
-
-.stat-data-table .w3 {
-	width: 150px;
-}
-
-.stat-data-table .w4 {
-	width: 200px;
-}
-
-.stat-data-table .w5 {
-	width: 250px;
+.stat-data-table .header-top th {
+  text-align: center;	
 }
 
 .stat-data-table span.flag {
