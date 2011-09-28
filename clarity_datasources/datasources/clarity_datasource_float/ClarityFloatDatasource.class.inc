@@ -4,6 +4,22 @@ class ClarityFloatDatasource implements DatasourceIfc, DatasourceStatIfc {
 
 
   /**
+   * The raw number format is not in scientific notation and has no trailing zeroes after a decimal.
+   * This is the format for use in forms and the default format for presentation.
+   * @param number $value
+   */
+  private static function rawNumberFormat($value) {
+
+    if (strpos($value, '.') !== FALSE) {
+      return preg_replace('/\.([0-9]*[1-9])0+$/', '.${1}', sprintf('%f', $value));
+    } else {
+      return number_format($value, 0, '', '');
+    }
+
+  }
+
+
+  /**
    * Applies formatting to a value
    */
   private static function formatValue($format, $value) {
@@ -23,7 +39,7 @@ class ClarityFloatDatasource implements DatasourceIfc, DatasourceStatIfc {
         break;
 
       default:
-        return number_format($value);
+        return self::rawNumberFormat($value);
 
     }
 
@@ -42,7 +58,8 @@ class ClarityFloatDatasource implements DatasourceIfc, DatasourceStatIfc {
 
     $default = null;
     if ($record = $result->fetchAssoc()) {
-      $default = $record['value'];
+      // Prevent the number from being formatted in scientific notation
+      $default = self::rawNumberFormat($record['value']);
     }
 
     $fields['single-value'] = array(

@@ -36,6 +36,7 @@ function clarity_datasource_float_schema() {
       ),
       'value' => array(
         'type' => 'float',
+        'size' => 'big',
         'not null' => false,
         'default' => NULL,
         'description' => 'The value'
