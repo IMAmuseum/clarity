@@ -31,7 +31,17 @@ function clarity_datasources_preprocess_stat_data_table(&$vars) {
                                                    array($vars['stat_nid'], $index));
   }
 
-  $vars['header_content'] = theme('stat_data_table_header', array('ds_header_labels' => $ds_header_info));
+  $assignment_header_labels = array(t('User'), t('Date'), t('Date Modified'));
+  if (property_exists($stat, 'field_assignment_properties')) {
+    $items = $stat->field_assignment_properties['und'];
+    foreach($items as $item) {
+      $assignment_header_labels[] = $item['label'];
+    }
+  }
+  $assignment_header_labels[] = '&nbsp';
+
+  $vars['header_content'] = theme('stat_data_table_header',
+                                  array('assignment_header_labels' => $assignment_header_labels, 'ds_header_labels' => $ds_header_info));
 
   // Assemble the content for each row
   while($result = $results->fetchAssoc()) {
@@ -55,11 +65,6 @@ function clarity_datasources_preprocess_stat_data_table(&$vars) {
 }
 
 
-function clarity_datasources_preprocess_stat_data_table_header(&$vars) {
-
-}
-
-
 function clarity_datasources_preprocess_stat_data_table_row(&$vars) {
 
   $vars['columns'] = array();
@@ -78,6 +83,19 @@ function clarity_datasources_preprocess_stat_data_table_row(&$vars) {
     'classes' => '',
     'content' => isset($vars['assignment']->modified_date) ? date('m/d/Y', $vars['assignment']->modified_date) : '&nbsp;',
   );
+
+  $stat = node_load($vars['assignment']->sid);
+  if (property_exists($stat, 'field_assignment_properties')) {
+    $items = $stat->field_assignment_properties['und'];
+    foreach($items as $item) {
+      $result = db_query('SELECT * FROM assignment_properties WHERE `assignment_id` = :a AND `key` = :k',
+                         array(':a' => $vars['assignment']->aid, ':k' => $item['key']))->fetchAssoc();
+      $vars['columns'][$item['key']] = array(
+        'classes' => '',
+        'content' => isset($result) ? $result['value'] : '&nbsp;'
+      );
+    }
+  }
 
   $vars['columns']['assignment_edit'] = array(
     'classes' => '',

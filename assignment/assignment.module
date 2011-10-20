@@ -585,7 +585,7 @@ function assignment_property_field_submit($form, $form_state) {
     $items = $node->field_assignment_properties['und'];
     if (!empty($items)) {
       foreach($items as $delta => $item) {
-        $result = db_query("INSERT INTO {assignment_properties} (`assignment_id`, `key`, `value`) VALUES (:a, :k, :v)",
+        $result = db_query("REPLACE INTO {assignment_properties} (`assignment_id`, `key`, `value`) VALUES (:a, :k, :v)",
           array(':a' => $form_state['values']['aid'],
                 ':k' => $item['key'],
                 ':v' => $form_state['values'][$item['key']]));

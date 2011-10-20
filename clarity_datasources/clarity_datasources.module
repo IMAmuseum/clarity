@@ -120,7 +120,8 @@ function clarity_datasources_theme() {
       'template' => 'stat_data_table_header',
       'file' => 'clarity_datasources.templates.inc',
       'arguments' => array(
-        'ds_header_labels' => array()
+        'assignment_header_labels' => array(),
+        'ds_header_labels' => array(),
       )
     ),
     'stat_data_table_row' => array(
