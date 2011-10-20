@@ -225,6 +225,20 @@
 			'#value'	=> $default->sid
 		);
 
+    if (property_exists($node, 'field_assignment_properties')) {
+      $items = $node->field_assignment_properties['und'];
+      if (!empty($items)) {
+
+        $property_types = module_invoke_all('assignment_property_types');
+
+        foreach($items as $item) {
+          $form[$item['key']] = $property_types[$item['type']]['field'];
+          $form[$item['key']]['#title'] = $item['label'];
+        }
+      }
+
+    }
+
 		field_attach_form('assignment', $default, $form, $form_state);
 
 		$form['actions'] = array('#type' => 'actions');
@@ -296,6 +310,9 @@
 			drupal_write_record('assignment', $assignment);
 			module_invoke_all('assignment_insert', $assignment);
 		}
+
+    assignment_property_field_submit($form, $form_state);
+
 		$form_state['redirect'] = "node/" . $assignment->sid . "/assignments";
 	}
 
@@ -329,6 +346,32 @@
 			'#value'	=> $assignment->sid
 		);
 
+
+    if (property_exists($node, 'field_assignment_properties')) {
+      $items = $node->field_assignment_properties['und'];
+      if (!empty($items)) {
+
+        $property_types = module_invoke_all('assignment_property_types');
+
+        $results = db_select('assignment_properties', 'ap')
+                   ->fields('ap')
+                   ->condition('assignment_id', $assignment->aid)
+                   ->execute();
+        while($result = $results->fetchAssoc()) {
+          $defaults[$result['key']] = $result['value'];
+        }
+
+        foreach($items as $item) {
+          $form[$item['key']] = $property_types[$item['type']]['field'];
+          $form[$item['key']]['#title'] = $item['label'];
+          if (isset($defaults[$item['key']])) {
+            $form[$item['key']]['#default_value'] = $defaults[$item['key']];
+          }
+        }
+      }
+
+    }
+
 		$form['actions'] = array('#type' => 'actions');
 		$form['actions']['submit'] = array(
 			'#type'		=> 'submit',
@@ -355,6 +398,8 @@
 
 		drupal_write_record('assignment', $assignment, 'aid');
 		field_attach_update('assignment', $assignment);
+
+    assignment_property_field_submit($form, $form_state);
 
 		module_invoke_all('assignment_update', $assignment);
 		$form_state['redirect'] = "node/" . $assignment->sid . "/assignments";
@@ -510,3 +555,191 @@ function assignment_flag_set_ajax() {
   print json_encode(array('success' => true)); exit();
 
 }
+
+
+/**
+ * Returns an array of property types that can be added to an assignment
+ */
+function assignment_assignment_property_types() {
+
+  return array(
+    'user_autocomplete' => array(
+      'name' => t('User Autocomplete'),
+      'field' => array(
+        '#type' => 'textfield',
+        '#autocomplete_path' => 'user/autocomplete',
+        '#element_validate' => array('assignment_property_validate_user_autocomplete')
+      )
+    )
+  );
+
+}
+
+/**
+ * Save the information entered in an assignment property field
+ */
+function assignment_property_field_submit($form, $form_state) {
+
+  $node = node_load($form_state['values']['sid']);
+  if (property_exists($node, 'field_assignment_properties')) {
+    $items = $node->field_assignment_properties['und'];
+    if (!empty($items)) {
+      foreach($items as $delta => $item) {
+        $result = db_query("INSERT INTO {assignment_properties} (`assignment_id`, `key`, `value`) VALUES (:a, :k, :v)",
+          array(':a' => $form_state['values']['aid'],
+                ':k' => $item['key'],
+                ':v' => $form_state['values'][$item['key']]));
+      }
+    }
+  }
+
+}
+
+
+function assignment_property_validate_user_autocomplete($form, &$form_state) {
+
+  $query = db_select('users', 'u')->condition('name', $form['#value']);
+  if (!$query->countQuery()->execute()->fetchField()) {
+    form_set_error($form['#name'], t('Not a valid user'));
+  }
+
+}
+
+
+/*****************************************************************************
+ * Field Hooks                                                               *
+ *****************************************************************************/
+
+function assignment_field_info() {
+
+  return array(
+    'clarity_assignment_properties' => array(
+      'label' => t('Assignment properties'),
+      'description' => t('This field stores properties that can be defined on assignments'),
+      'default_widget' => 'options_select',
+      'default_formatter' => 'clarity_assignment_property_formatter'
+    )
+  );
+
+}
+
+
+function assignment_field_widget_info() {
+
+  return array(
+    'clarity_assignment_property_widget' => array(
+      'label' => t('Assignment property widget'),
+      'field types' => array('clarity_assignment_properties')
+    )
+  );
+
+}
+
+
+function assignment_field_widget_form(&$form, &$form_state, $field,
+                                      $instance, $langcode, $items, $delta, $element) {
+
+  switch($field['type']) {
+
+    case 'clarity_assignment_properties':
+
+      $item =& $items[$delta];
+
+      $element += array('#type' => 'fieldset');
+      $element['key'] = array(
+        '#title' => t('Key'),
+        '#description' => t('A machine-name for this property'),
+        '#type' => 'textfield',
+        '#size' => 20,
+        '#maxlength' => 128,
+        '#default_value' => isset($item['key']) ? $item['key'] : null
+      );
+      $element['label'] = array(
+        '#title' => t('Label'),
+        '#description' => t('A human-readable name for this property'),
+        '#type' => 'textfield',
+        '#size' => 20,
+        '#maxlength' => 128,
+        '#default_value' => isset($item['label']) ? $item['label'] : null
+      );
+
+      $options = array();
+      foreach(module_invoke_all('assignment_property_types') as $key => $type) {
+        $options[$key] = $type['name'];
+      }
+
+      $element['type'] = array(
+        '#title' => t('Type'),
+        '#type' => 'select',
+        '#options' => $options,
+        '#default_value' => isset($item['type']) ? $item['type'] : null
+      );
+
+      return $element;
+
+  }
+
+}
+
+
+function assignment_field_validate($entity_type, $entity, $field,
+                                   $instance, $langcode, $items, &$errors) {
+
+  foreach($items as $delta1 => $item1) {
+    foreach($items as $delta2 => $item2) {
+      if (($delta1 == $delta2) || ($item1['key'] == null)) continue;
+      if ($item1['key'] == $item2['key']) {
+        $errors[$field['field_name']][$langcode][$delta2][] = array(
+          'error' => t('Duplicate assignment property key')
+        );
+        return;
+      }
+    }
+  }
+
+}
+
+
+function assignment_field_formatter_info() {
+
+  return array(
+      'clarity_assignment_property_formatter' => array(
+          'label' => t('Assignment property formatter'),
+          'field types' => array('clarity_assignment_property')
+      )
+  );
+
+}
+
+
+function assignment_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+
+  $element = array();
+
+  switch($display['type']) {
+    case 'clarity_assignment_property_formatter':
+      $types = module_invoke_all('assignment_property_types');
+      foreach($items as $delta=> $item) {
+        if(isset($item['label'])) {
+          $element[$delta]['#markup'] = '<span>' . $item['label'] . '</span> - ';
+        }
+        $element[$delta]['#markup'] .= '<span>' . $types[$item['type']]['name'] . '</span>';
+      }
+      break;
+  }
+
+  return $element;
+
+}
+
+
+function assignment_field_is_empty($item, $field) {
+  switch($field['type']) {
+    case 'clarity_assignment_properties':
+      if ($item['key'] == null) return true;
+      break;
+  }
+  return false;
+}
+
+

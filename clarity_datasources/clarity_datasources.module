@@ -763,7 +763,7 @@ function clarity_datasources_field_info() {
       'description' => t('This field stores a reference to a datasource.'),
       'default_widget' => 'options_select',
       'default_formatter' => 'clarity_datasource_formatter',
-    )
+    ),
   );
 
 }
@@ -772,10 +772,10 @@ function clarity_datasources_field_info() {
 function clarity_datasources_field_widget_info() {
 
   return array(
-      'clarity_datasource_widget' => array(
-          'label' => t('Datasource widget'),
-          'field types' => array('clarity_datasource_reference'),
-      ),
+    'clarity_datasource_widget' => array(
+      'label' => t('Datasource widget'),
+      'field types' => array('clarity_datasource_reference'),
+    ),
   );
 
 }
@@ -784,37 +784,43 @@ function clarity_datasources_field_widget_info() {
 function clarity_datasources_field_widget_form(&$form, &$form_state, $field,
                                                $instance, $langcode, $items, $delta, $element) {
 
-  $field_name = $instance['field_name'];
-  $fieldset_info = element_info('fieldset');
-  $required = $element['#required'];
-  $item =& $items[$delta];
+  switch($field['type']) {
 
-  $opts = clarity_datasources_options_list($field);
-  $opts[null] = t('None');
+    case 'clarity_datasource_reference':
 
-  $element += array('#type' => 'fieldset');
+      $field_name = $instance['field_name'];
+      $fieldset_info = element_info('fieldset');
+      $required = $element['#required'];
+      $item =& $items[$delta];
 
-  $element['label'] = array(
-    '#title' => t('Label'),
-    '#type' => 'textfield',
-    '#size' => 20,
-    '#default_value' => isset($item['label']) ? $item['label'] : null
-  );
+      $opts = clarity_datasources_options_list($field);
+      $opts[null] = t('None');
 
-  $element['dsid'] = array(
-    '#title' => t('Datasource'),
-    '#type' => 'select',
-    '#options' => $opts,
-    '#default_value' => isset($item['dsid']) ? $item['dsid'] : null
-  );
+      $element += array('#type' => 'fieldset');
 
-  $keys = array_keys($items);
-  $element['index'] = array(
-    '#type' => 'value',
-    '#value' => isset($item['index']) ? $item['index'] : $keys[count($items)-1]
-  );
+      $element['label'] = array(
+        '#title' => t('Label'),
+        '#type' => 'textfield',
+        '#size' => 20,
+        '#default_value' => isset($item['label']) ? $item['label'] : null
+      );
 
-  return $element;
+      $element['dsid'] = array(
+        '#title' => t('Datasource'),
+        '#type' => 'select',
+        '#options' => $opts,
+        '#default_value' => isset($item['dsid']) ? $item['dsid'] : null
+      );
+
+      $keys = array_keys($items);
+      $element['index'] = array(
+        '#type' => 'value',
+        '#value' => isset($item['index']) ? $item['index'] : $keys[count($items)-1]
+      );
+
+      return $element;
+
+  }
 
 }
 
@@ -859,17 +865,10 @@ function clarity_datasources_field_formatter_view($entity_type, $entity, $field,
           }
         }
       }
+      break;
   }
 
   return $element;
-
-}
-
-
-function clarity_datasources_field_widget_info_alter(&$info) {
-
-  $info['options_select']['field types'][] = 'clarity_datasource_reference';
-  $info['options_buttons']['field types'][] = 'clarity_datasource_reference';
 
 }
 
@@ -891,7 +890,11 @@ function clarity_datasources_field_widget_error($element, $error, $form, &$form_
 
 
 function clarity_datasources_field_is_empty($item, $field) {
-  if ($item['dsid'] == null) return true;
+  switch($field['type']) {
+    case 'clarity_datasource_reference':
+      if ($item['dsid'] == null) return true;
+      break;
+  }
   return false;
 }
 

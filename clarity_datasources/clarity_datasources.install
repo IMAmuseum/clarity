@@ -3,27 +3,31 @@
 
 function clarity_datasources_field_schema($field) {
 
-  if ($field['type'] != 'clarity_datasource_reference') return;
+  switch($field['type']) {
+  
+    case 'clarity_datasource_reference':
 
-  return array(
-    'columns' => array(
-      'dsid' => array(
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'default'  => 0,
-      ),
-      'label' => array(
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => false,        
-      ),
-      'index' => array(
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE
-      ),            
-    ),  
-  );
+      return array(
+        'columns' => array(
+          'dsid' => array(
+            'type' => 'int',
+            'unsigned' => TRUE,
+            'default'  => 0,
+          ),
+          'label' => array(
+            'type' => 'varchar',
+            'length' => 255,
+            'not null' => false,        
+          ),
+          'index' => array(
+            'type' => 'int',
+            'unsigned' => TRUE,
+            'not null' => TRUE
+          ),            
+        ),  
+      );
+      
+  }
 
 }
 
