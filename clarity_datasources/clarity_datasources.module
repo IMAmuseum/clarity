@@ -194,6 +194,21 @@ function clarity_datasources_submit_data_form($form, &$form_state, $assignment_i
     '#value' => $assignment
   );
 
+  if (property_exists($stat, 'field_assignment_properties')) {
+    $items = $stat->field_assignment_properties['und'];
+    foreach($items as $item) {
+      $result = db_query('SELECT * FROM assignment_properties WHERE `assignment_id` = :a AND `key` = :k',
+                         array(':a' => $assignment_id, ':k' => $item['key']))->fetchAssoc();
+      if (isset($result)) {
+        $form['property-' . $item['key']] = array(
+          '#title' => $item['label'],
+          '#type' => 'item',
+          '#markup' => $result['value']
+        );
+      }
+    }
+  }
+
   $form['stat-title'] = array(
     '#type' => 'item',
     '#markup' => "<h2>{$stat->title}</h2>",
