@@ -32,7 +32,7 @@ function clarity_datasources_preprocess_stat_data_table(&$vars) {
   }
 
   $assignment_header_labels = array(t('User'), t('Date'), t('Date Modified'));
-  if (property_exists($stat, 'field_assignment_properties')) {
+  if (property_exists($stat, 'field_assignment_properties') && isset($stat->field_assignment_properties['und'])) {
     $items = $stat->field_assignment_properties['und'];
     foreach($items as $item) {
       $assignment_header_labels[] = $item['label'];
@@ -85,7 +85,7 @@ function clarity_datasources_preprocess_stat_data_table_row(&$vars) {
   );
 
   $stat = node_load($vars['assignment']->sid);
-  if (property_exists($stat, 'field_assignment_properties')) {
+  if (property_exists($stat, 'field_assignment_properties') && isset($stat->field_assignment_properties['und'])) {
     $items = $stat->field_assignment_properties['und'];
     foreach($items as $item) {
       $result = db_query('SELECT * FROM assignment_properties WHERE `assignment_id` = :a AND `key` = :k',

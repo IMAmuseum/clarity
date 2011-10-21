@@ -194,7 +194,7 @@ function clarity_datasources_submit_data_form($form, &$form_state, $assignment_i
     '#value' => $assignment
   );
 
-  if (property_exists($stat, 'field_assignment_properties')) {
+  if (property_exists($stat, 'field_assignment_properties') && isset($stat->field_assignment_properties['und'])) {
     $items = $stat->field_assignment_properties['und'];
     foreach($items as $item) {
       $result = db_query('SELECT * FROM assignment_properties WHERE `assignment_id` = :a AND `key` = :k',
@@ -366,38 +366,39 @@ function clarity_datasources_stat_config_form($form, &$form_state, $stat) {
 
     $delta = _clarity_datasources_delta_for_index($stat, $index);
 
+    $result = db_select('clarity_datasource_stat_config', 'c')
+      ->fields('c')
+      ->condition('stat_id', $stat->nid, '=')
+      ->condition('field_index', $index)
+      ->execute()->fetchAssoc();
+    $config = unserialize($result['config']);
+
     if (in_array('DatasourceStatIfc', class_implements($info->class))) {
 
-      $result = db_select('clarity_datasource_stat_config', 'c')
-        ->fields('c')
-        ->condition('stat_id', $stat->nid, '=')
-        ->condition('field_index', $index)
-        ->execute()->fetchAssoc();
-      $config = unserialize($result['config']);
-
       $form["datasource-$index"] = call_user_func_array($info->class . '::getStatConfigFormFields', array($stat));
-      $form["datasource-$index"]['#type'] = 'fieldset';
 
-      $form["datasource-$index"]['#title'] = '';
-      if (isset($stat->field_datasources['und'][$delta]['label'])) {
-        $form["datasource-$index"]['#title'] .= $stat->field_datasources['und'][$delta]['label'] . ' - ';
+    }
+
+    $form["datasource-$index"]['#type'] = 'fieldset';
+
+    $form["datasource-$index"]['#title'] = '';
+    if (isset($stat->field_datasources['und'][$delta]['label'])) {
+      $form["datasource-$index"]['#title'] .= $stat->field_datasources['und'][$delta]['label'] . ' - ';
+    }
+    $form["datasource-$index"]['#title'] .= $info->label;
+
+    $form["datasource-$index"]['#tree'] = true;
+
+    $form["datasource-$index"]['instruction'] = array(
+      '#type' => 'textarea',
+      '#description' => t('Instructions for this field'),
+      '#weight' => -1
+    );
+
+    if (isset($config) && ($config != null)) {
+      foreach($config as $key => $val) {
+        $form["datasource-$index"][$key]['#default_value'] = $val;
       }
-      $form["datasource-$index"]['#title'] .= $info->label;
-
-      $form["datasource-$index"]['#tree'] = true;
-
-      $form["datasource-$index"]['instruction'] = array(
-        '#type' => 'textarea',
-        '#description' => t('Instructions for this field'),
-        '#weight' => -1
-      );
-
-      if (isset($config) && ($config != null)) {
-        foreach($config as $key => $val) {
-          $form["datasource-$index"][$key]['#default_value'] = $val;
-        }
-      }
-
     }
 
   }
