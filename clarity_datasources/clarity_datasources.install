@@ -97,7 +97,7 @@ function clarity_datasources_schema() {
         'description' => 'Serialized configuration'
       ),
     ),
-    'primary key' => array('stat_id', 'delta')  
+    'primary key' => array('stat_id', 'field_index')  
   );
   
   $schema['assignment_terms'] = array(
