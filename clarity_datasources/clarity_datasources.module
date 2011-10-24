@@ -260,15 +260,9 @@ function clarity_datasources_submit_data_form($form, &$form_state, $assignment_i
     if (!empty($ds['config']['instruction'])) {
       $form['datasources'][$ds['index']]['instruction'] = array(
         '#type' => 'item',
+        '#prefix' => "<div class='instruction'>",
         '#markup' => $ds['config']['instruction'],
-        '#weight' => -1
-      );
-    }
-
-    if (!empty($ds['config']['instruction'])) {
-      $form['datasources'][$ds['index']]['instruction'] = array(
-        '#type' => 'item',
-        '#markup' => $ds['config']['instruction'],
+        '#suffix' => '</div>',
         '#weight' => -1
       );
     }
