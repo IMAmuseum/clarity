@@ -887,6 +887,7 @@ function clarity_datasources_field_formatter_view($entity_type, $entity, $field,
 function clarity_datasources_options_list($field) {
 
   $datasources = _clarity_datasources_get_datasources();
+  $options = array();
   foreach($datasources as $datasource) {
     $options[$datasource->dsid] = $datasource->label;
   }
