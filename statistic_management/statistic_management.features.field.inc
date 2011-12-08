@@ -5,7 +5,7 @@
  */
 
 /**
- * Implementation of hook_field_default_fields().
+ * Implements hook_field_default_fields().
  */
 function statistic_management_field_default_fields() {
   $fields = array();
@@ -84,6 +84,117 @@ function statistic_management_field_default_fields() {
     ),
   );
 
+  // Exported field: 'node-statistic-field_categories'
+  $fields['node-statistic-field_categories'] = array(
+    'field_config' => array(
+      'active' => '1',
+      'cardinality' => '1',
+      'deleted' => '0',
+      'entity_types' => array(),
+      'field_name' => 'field_categories',
+      'foreign keys' => array(),
+      'indexes' => array(
+        'value' => array(
+          0 => 'value',
+        ),
+      ),
+      'module' => 'list',
+      'settings' => array(
+        'allowed_values' => array(),
+        'allowed_values_function' => '',
+      ),
+      'translatable' => '1',
+      'type' => 'list_text',
+    ),
+    'field_instance' => array(
+      'bundle' => 'statistic',
+      'default_value' => NULL,
+      'deleted' => '0',
+      'description' => 'Categories associated to a statistic.',
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'module' => 'list',
+          'settings' => array(),
+          'type' => 'list_default',
+          'weight' => 2,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'node',
+      'field_name' => 'field_categories',
+      'label' => 'Categories',
+      'required' => 0,
+      'settings' => array(
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 1,
+        'module' => 'options',
+        'settings' => array(),
+        'type' => 'options_select',
+        'weight' => '-2',
+      ),
+    ),
+  );
+
+  // Exported field: 'node-statistic-field_datasources'
+  $fields['node-statistic-field_datasources'] = array(
+    'field_config' => array(
+      'active' => '1',
+      'cardinality' => '-1',
+      'deleted' => '0',
+      'entity_types' => array(),
+      'field_name' => 'field_datasources',
+      'foreign keys' => array(),
+      'indexes' => array(),
+      'module' => 'clarity_datasources',
+      'settings' => array(),
+      'translatable' => '0',
+      'type' => 'clarity_datasource_reference',
+    ),
+    'field_instance' => array(
+      'bundle' => 'statistic',
+      'default_value' => NULL,
+      'deleted' => '0',
+      'description' => '',
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'module' => 'clarity_datasources',
+          'settings' => array(),
+          'type' => 'clarity_datasource_formatter',
+          'weight' => 3,
+        ),
+        'teaser' => array(
+          'label' => 'above',
+          'settings' => array(),
+          'type' => 'hidden',
+          'weight' => 0,
+        ),
+      ),
+      'entity_type' => 'node',
+      'field_name' => 'field_datasources',
+      'label' => 'Datasources',
+      'required' => 0,
+      'settings' => array(
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 0,
+        'module' => 'clarity_datasources',
+        'settings' => array(),
+        'type' => 'clarity_datasource_widget',
+        'weight' => '-1',
+      ),
+    ),
+  );
+
   // Exported field: 'node-statistic-field_expiration_interval'
   $fields['node-statistic-field_expiration_interval'] = array(
     'field_config' => array(
@@ -150,73 +261,15 @@ function statistic_management_field_default_fields() {
     ),
   );
 
-    // Exported field: 'node-statistic-field_categories'
-  $fields['node-statistic-field_categories'] = array(
-    'field_config' => array(
-      'active' => '1',
-      'cardinality' => '1',
-      'deleted' => '0',
-      'entity_types' => array(),
-      'field_name' => 'field_categories',
-      'foreign keys' => array(),
-      'indexes' => array(
-        'value' => array(
-          0 => 'value',
-        ),
-      ),
-      'module' => 'list',
-      'settings' => array(
-        'allowed_values' => array(),
-        'allowed_values_function' => '',
-      ),
-      'translatable' => '1',
-      'type' => 'list_text',
-    ),
-    'field_instance' => array(
-      'bundle' => 'statistic',
-      'default_value' => NULL,
-      'deleted' => '0',
-      'description' => 'Categories associated to a statistic.',
-      'display' => array(
-        'default' => array(
-          'label' => 'above',
-          'module' => 'list',
-          'settings' => array(),
-          'type' => 'list_default',
-          'weight' => 2,
-        ),
-        'teaser' => array(
-          'label' => 'above',
-          'settings' => array(),
-          'type' => 'hidden',
-          'weight' => 0,
-        ),
-      ),
-      'entity_type' => 'node',
-      'field_name' => 'field_categories',
-      'label' => 'Categories',
-      'required' => 0,
-      'settings' => array(
-        'user_register_form' => FALSE,
-      ),
-      'widget' => array(
-        'active' => 1,
-        'module' => 'options',
-        'settings' => array(),
-        'type' => 'options_select',
-        'weight' => '-2',
-      ),
-    ),
-  );
-
   // Translatables
   // Included for use with string extractors like potx.
+  t('Categories');
+  t('Categories associated to a statistic.');
+  t('Datasources');
   t('Description');
   t('Description of statistic being kept.');
   t('Expiration Interval');
   t('Time interval for statistic to expire.');
-  t('Unit');
-  t('Unit of measurement for statistic\'s data set.');
 
   return $fields;
 }

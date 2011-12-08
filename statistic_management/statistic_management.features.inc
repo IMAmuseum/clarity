@@ -5,7 +5,7 @@
  */
 
 /**
- * Implementation of hook_node_info().
+ * Implements hook_node_info().
  */
 function statistic_management_node_info() {
   $items = array(
